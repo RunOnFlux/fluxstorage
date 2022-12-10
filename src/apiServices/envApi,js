@@ -11,6 +11,9 @@ function getEnv(req, res) {
       return;
     }
     const envExist = envService.getEnv(id);
+    if (!envExist) {
+      throw new Error(`ENV of ${id} does not exist`);
+    }
     res.json(envExist);
   } catch (error) {
     log.error(error);
