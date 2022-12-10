@@ -2,7 +2,7 @@ const envService = require('../services/envService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
 
-function getEnv(req, res) {
+async function getEnv(req, res) {
   try {
     let { id } = req.params;
     id = id || req.query.id;
@@ -10,7 +10,7 @@ function getEnv(req, res) {
       res.sendStatus(400);
       return;
     }
-    const envExist = envService.getEnv(id);
+    const envExist = await envService.getEnv(id);
     if (!envExist) {
       throw new Error(`ENV of ${id} does not exist`);
     }
