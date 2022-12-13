@@ -1,10 +1,10 @@
-# Flux Store
+# Flux Storage
 
 Storage for huge Env variables and Commands for FluxOS.
 
-FluxOS has safety limitations on maximum payload size to not overload the network. Applications that require huge payloads in its environment variables or commands are then so advised to use flux store to fetch this payload.
+FluxOS has safety limitations on maximum payload size to not overload the network. Applications that require huge payloads in its environment variables or commands are then so advised to use Flux Storage to fetch this payload.
 
-In later implementation Flux Store can also be used for secrets management.
+In later implementation Flux Storage can also be used for secrets management.
 
 Protections and authentications on endpoint will be added to later implementations even from an instance requesting data.
 

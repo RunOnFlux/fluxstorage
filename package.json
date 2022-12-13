@@ -1,7 +1,7 @@
 {
-  "name": "fluxstore",
+  "name": "fluxstorage",
   "version": "1.0.0",
-  "description": "Flux Store",
+  "description": "Flux Storage",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",

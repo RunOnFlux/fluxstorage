@@ -1,12 +1,12 @@
 const axios = require('axios');
 
-async function postEnvToStore() {
+async function postEnvToStorage() {
   const data = {
     envid: 'mytestid',
     env: ['testEnv=Hello', 'testEnv2=World'],
   };
-  const response = await axios.post('https://store.runonflux.io/v1/env', data);
+  const response = await axios.post('https://storage.runonflux.io/v1/env', data);
   console.log(response.data);
 }
 
-postEnvToStore();
+postEnvToStorage();

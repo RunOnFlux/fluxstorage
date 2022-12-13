@@ -18,7 +18,7 @@ setTimeout(() => {
 }, 2000);
 
 setTimeout(() => {
-  log.info('Starting Flux Store');
+  log.info('Starting Flux Storage');
   server.listen(config.server.port, () => {
     log.info(`App listening on port ${config.server.port}`);
   });
