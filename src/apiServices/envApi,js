@@ -13,15 +13,32 @@ async function getEnv(req, res) {
     // get IP
     // get deterministic node list todo daemon/viewdeterministcizelnodelist, use cache and constant refreshing of it
     // from ip get nodes that are fine, array of pub keys, do verification
-    // const signature = req.headers['flux-signature'];
-    // const messageToVerify = req.headers['flux-message'];
-    // const ip = req.headers['x-forwarded-for'];
-    // const verified = await serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+    const signature = req.headers['flux-signature'];
+    const messageToVerify = req.headers['flux-message'];
+    const ip = req.headers['x-forwarded-for'];
     const envExist = await envService.getEnv(id);
     if (!envExist) {
       throw new Error(`ENV of ${id} does not exist`);
     }
-    res.json(envExist);
+    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+    const pubKeys = [];
+    fluxNodes.data.data.forEach((node) => {
+      if (node.ip.split(':')[0] === ip) {
+        pubKeys.push(node.pubkey);
+      }
+    });
+    let verified = false;
+    pubKeys.forEach((pubKey) => {
+      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+      if (nodeVerified) {
+        verified = true;
+      }
+    });
+    if (verified) {
+      res.json(envExist);
+    } else {
+      res.sendStatus(403);
+    }
   } catch (error) {
     log.error(error);
     res.sendStatus(404);
