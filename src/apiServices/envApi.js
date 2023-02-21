@@ -1,3 +1,4 @@
+const { protection } = require('config');
 const envService = require('../services/envService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
@@ -27,7 +28,7 @@ async function getEnv(req, res) {
         pubKeys.push(node.pubkey);
       }
     });
-    let verified = false;
+    let verified = protection;
     pubKeys.forEach((pubKey) => {
       const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
       if (nodeVerified) {

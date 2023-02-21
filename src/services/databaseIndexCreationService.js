@@ -17,6 +17,21 @@ async function doEnvIndexes() {
   }
 }
 
+async function doCmdIndexes() {
+  try {
+    log.info('cmd collection indexes');
+    const db = serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.cmd).createIndex({ cmdid: 1 }); // for querying paritcular cmd
+
+    log.info('cmd collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 module.exports = {
   doEnvIndexes,
+  doCmdIndexes,
 };

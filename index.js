@@ -15,6 +15,7 @@ serviceHelper.initiateDB();
 setTimeout(() => {
   log.info('Preparing indexes');
   databaseService.doEnvIndexes(); // no waiting
+  databaseService.doCmdIndexes(); // no waiting
 }, 2000);
 
 setTimeout(() => {
