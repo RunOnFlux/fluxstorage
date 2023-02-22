@@ -1,4 +1,4 @@
-const { protection } = require('config');
+const { protection, contactsApiKey } = require('config');
 const contactsService = require('../services/contactsService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
@@ -12,30 +12,15 @@ async function getContacts(req, res) {
       res.sendStatus(400);
       return;
     }
-    // get IP
-    // get deterministic node list todo daemon/viewdeterministcizelnodelist, use cache and constant refreshing of it
-    // from ip get nodes that are fine, array of pub keys, do verification
-    const signature = req.headers['flux-signature'];
-    const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
+    const apiKey = req.headers['x-api-key'];
     const contactsExist = await contactsService.getContacts(id);
     if (!contactsExist) {
       throw new Error(`CONTACTS of ${id} does not exist`);
     }
-    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
-    const pubKeys = [];
-    fluxNodes.data.data.forEach((node) => {
-      if (node.ip.split(':')[0] === ip) {
-        pubKeys.push(node.pubkey);
-      }
-    });
     let verified = !protection;
-    pubKeys.forEach((pubKey) => {
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
-      if (nodeVerified) {
-        verified = true;
-      }
-    });
+    if (apiKey === contactsApiKey) {
+      verified = true;
+    }
     if (verified) {
       res.json(contactsExist);
     } else {
