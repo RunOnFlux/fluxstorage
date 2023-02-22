@@ -28,7 +28,7 @@ async function getEnv(req, res) {
         pubKeys.push(node.pubkey);
       }
     });
-    let verified = protection;
+    let verified = !protection;
     pubKeys.forEach((pubKey) => {
       const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
       if (nodeVerified) {
