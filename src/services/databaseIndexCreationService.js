@@ -31,7 +31,22 @@ async function doCmdIndexes() {
   }
 }
 
+async function doContactsIndexes() {
+  try {
+    log.info('contacts collection indexes');
+    const db = serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.contacts).createIndex({ contactsd: 1 }); // for querying paritcular cmd
+
+    log.info('contacts collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 module.exports = {
   doEnvIndexes,
   doCmdIndexes,
+  doContactsIndexes,
 };
