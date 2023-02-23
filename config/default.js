@@ -1,15 +1,17 @@
+const secrets = require('./secrets');
+
 module.exports = {
   server: {
     port: 9876,
   },
   protection: true, // if flux storage requires fluxos authentication
-  contactsApiKey: 'kappa',
+  contactsApiKey: secrets.contactsApiKey,
   database: {
     url: '127.0.0.1',
     port: 27017,
-    database: 'dbname',
-    username: 'dbusername',
-    password: 'dbpassword',
+    database: secrets.dbname,
+    username: secrets.dbusername,
+    password: secrets.dbpassword,
   },
   collections: {
     env: 'env',
