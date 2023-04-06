@@ -3,7 +3,7 @@ const config = require('config');
 const serviceHelper = require('./serviceHelper');
 
 async function getEnv(id) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const envCollection = config.collections.env;
   const query = { envid: id };
@@ -23,7 +23,7 @@ async function getEnv(id) {
 
 // data is an object of envid, env
 async function postEnv(data) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const envCollection = config.collections.env;
   const query = { envid: data.envid };

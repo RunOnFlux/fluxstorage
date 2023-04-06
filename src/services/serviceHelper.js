@@ -18,7 +18,11 @@ const mongoUrl = `mongodb://${config.database.url}:${config.database.port}/`;
 
 let openDBConnection = null;
 
-function databaseConnection() {
+async function databaseConnection() {
+  if (!openDBConnection) {
+    // eslint-disable-next-line no-use-before-define
+    await initiateDB();
+  }
   return openDBConnection;
 }
 

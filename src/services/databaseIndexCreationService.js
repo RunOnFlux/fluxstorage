@@ -6,7 +6,7 @@ const log = require('../lib/log');
 async function doEnvIndexes() {
   try {
     log.info('env collection indexes');
-    const db = serviceHelper.databaseConnection();
+    const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
     await database.collection(config.collections.env).createIndex({ envid: 1 }); // for querying paritcular env
@@ -20,7 +20,7 @@ async function doEnvIndexes() {
 async function doCmdIndexes() {
   try {
     log.info('cmd collection indexes');
-    const db = serviceHelper.databaseConnection();
+    const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
     await database.collection(config.collections.cmd).createIndex({ cmdid: 1 }); // for querying paritcular cmd
@@ -34,7 +34,7 @@ async function doCmdIndexes() {
 async function doContactsIndexes() {
   try {
     log.info('contacts collection indexes');
-    const db = serviceHelper.databaseConnection();
+    const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
     await database.collection(config.collections.contacts).createIndex({ contactsd: 1 }); // for querying paritcular cmd

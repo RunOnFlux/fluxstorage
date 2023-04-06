@@ -3,7 +3,7 @@ const config = require('config');
 const serviceHelper = require('./serviceHelper');
 
 async function getContacts(id) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const contactsCollection = config.collections.contacts;
   const query = { contactsid: id };
@@ -23,7 +23,7 @@ async function getContacts(id) {
 
 // data is an object of contactsid, contacts
 async function postContacts(data) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const contactsCollection = config.collections.contacts;
   const query = { contactsid: data.contactsid };

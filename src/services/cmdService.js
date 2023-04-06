@@ -3,7 +3,7 @@ const config = require('config');
 const serviceHelper = require('./serviceHelper');
 
 async function getCmd(id) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const cmdCollection = config.collections.cmd;
   const query = { cmdid: id };
@@ -23,7 +23,7 @@ async function getCmd(id) {
 
 // data is an object of cmdid, cmd
 async function postCmd(data) {
-  const db = serviceHelper.databaseConnection();
+  const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const cmdCollection = config.collections.cmd;
   const query = { cmdid: data.cmdid };
