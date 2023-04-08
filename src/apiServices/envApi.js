@@ -140,6 +140,8 @@ async function getEnvV2(req, res) {
           }
         }
       }
+      envExist.replaceAll('KEY-----', 'KEY-----\n');
+      envExist.replaceAll('-----END', '\n-----END');
       res.json(envExist);
     } else {
       res.sendStatus(403);
