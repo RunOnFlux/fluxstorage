@@ -126,7 +126,7 @@ async function getEnvV2(req, res) {
         // does not exist in our DB.
         if (id === 'presearch') {
           // create proper env for presearch - private key. appName is the key. Then store it in db
-          const keys = presearchService.generateKeys(5); // generate 5 presearch keys that are comman separated
+          const keys = await presearchService.generateKeys(5); // generate 5 presearch keys that are comman separated
           const data = {
             env: [`PRIVATE_KEY=${keys}`],
             envid: appName,
