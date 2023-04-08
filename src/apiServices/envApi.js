@@ -121,7 +121,7 @@ async function getEnvV2(req, res) {
       });
     }
     if (verified) {
-      let envExist = await envService.getEnv(appName);
+      let envExist = await envService.getEnv(appName).catch(() => log.info(`Preserach ${appName} creation`));
       if (!envExist) {
         // does not exist in our DB.
         if (id === 'presearch') {
