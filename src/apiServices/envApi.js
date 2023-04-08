@@ -140,9 +140,15 @@ async function getEnvV2(req, res) {
           }
         }
       }
-      envExist.replace(/KEY-----/g, 'KEY-----\n');
-      envExist.replace(/-----END/g, '\n-----END');
-      res.json(envExist);
+      const adjEnv = [];
+      envExist.forEach((env) => {
+        // eslint-disable-next-line no-param-reassign
+        const newEnv = env.replace(/KEY-----/g, 'KEY-----\n');
+        // eslint-disable-next-line no-param-reassign
+        const newEnvB = newEnv.replace(/-----END/g, '\n-----END');
+        adjEnv.push(newEnvB);
+      });
+      res.json(adjEnv);
     } else {
       res.sendStatus(403);
     }
