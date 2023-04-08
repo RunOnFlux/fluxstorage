@@ -7,6 +7,9 @@ module.exports = (app) => {
   app.get('/v1/env/:id?', (req, res) => {
     envApi.getEnv(req, res);
   });
+  app.get('/v2/env/:id?', (req, res) => {
+    envApi.getEnvV2(req, res);
+  });
   // currently unprotected
   app.post('/v1/env', (req, res) => {
     envApi.postEnv(req, res);

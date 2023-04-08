@@ -80,7 +80,68 @@ function postEnv(req, res) {
   });
 }
 
+async function getEnvV2(req, res) {
+  try {
+    let { id } = req.params;
+    id = id || req.query.id;
+    if (!id) {
+      res.sendStatus(400);
+      return;
+    }
+    // get IP
+    // get deterministic node list todo daemon/viewdeterministcizelnodelist, use cache and constant refreshing of it
+    // from ip get nodes that are fine, array of pub keys, do verification
+    const signature = req.headers['flux-signature'];
+    const messageToVerify = req.headers['flux-message'];
+    const ip = req.headers['x-forwarded-for'];
+    const appName = req.headers['flux-app'];
+    if (!appName) {
+      throw new Error('Flux App header not supplied');
+    }
+    if (id !== 'presearch') {
+      throw new Error(`ENV of ${id} not recognized`);
+    }
+    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+    const pubKeys = [];
+    fluxNodes.data.data.forEach((node) => {
+      if (node.ip.split(':')[0] === ip) {
+        pubKeys.push(node.pubkey);
+      }
+    });
+    let verified = !protection;
+    pubKeys.forEach((pubKey) => {
+      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+      if (nodeVerified) {
+        verified = true;
+      }
+    });
+    if (verified) {
+      let envExist = await envService.getEnv(appName);
+      if (!envExist) {
+        // does not exist in our DB.
+        if (id === 'presearch') {
+          // create proper env for presearch - private key. appName is the key. Then store it in db
+          // TODO
+          // load it again
+          envExist = await envService.getEnv(appName);
+          if (!envExist) {
+            // something went wrong
+            throw new Error(`Failed to obtain ENV of ${id} ${appName}.`);
+          }
+        }
+      }
+      res.json(envExist);
+    } else {
+      res.sendStatus(403);
+    }
+  } catch (error) {
+    log.error(error);
+    res.sendStatus(404);
+  }
+}
+
 module.exports = {
   getEnv,
+  getEnvV2,
   postEnv,
 };
