@@ -1,14 +1,13 @@
 {
   "name": "fluxstorage",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flux Storage",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
     "test": "mocha tests --timeout 10000",
     "lint": "eslint ./",
-    "lint:fix": "eslint ./ --fix",
-    "testusers": "mocha tests --timeout 10000 --grep 'USERS'"
+    "lint:fix": "eslint ./ --fix"
   },
   "author": "Tadeas Kmenta",
   "license": "MIT",
@@ -27,6 +26,7 @@
     "mocha": "^10.1.0",
     "mongodb": "^4.12.1",
     "morgan": "^1.10.0",
+    "node-cmd": "~5.0.0",
     "nodemon": "^2.0.20",
     "qs": "^6.11.0",
     "supertest": "^6.3.3",

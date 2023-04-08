@@ -1,6 +1,7 @@
 const { protection } = require('config');
 const envService = require('../services/envService');
 const serviceHelper = require('../services/serviceHelper');
+const presearchService = require('../services/presearchService');
 const log = require('../lib/log');
 
 async function getEnv(req, res) {
@@ -21,20 +22,22 @@ async function getEnv(req, res) {
     if (!envExist) {
       throw new Error(`ENV of ${id} does not exist`);
     }
-    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
-    const pubKeys = [];
-    fluxNodes.data.data.forEach((node) => {
-      if (node.ip.split(':')[0] === ip) {
-        pubKeys.push(node.pubkey);
-      }
-    });
     let verified = !protection;
-    pubKeys.forEach((pubKey) => {
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
-      if (nodeVerified) {
-        verified = true;
-      }
-    });
+    if (!verified) {
+      const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+      const pubKeys = [];
+      fluxNodes.data.data.forEach((node) => {
+        if (node.ip.split(':')[0] === ip) {
+          pubKeys.push(node.pubkey);
+        }
+      });
+      pubKeys.forEach((pubKey) => {
+        const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+        if (nodeVerified) {
+          verified = true;
+        }
+      });
+    }
     if (verified) {
       res.json(envExist);
     } else {
@@ -101,27 +104,34 @@ async function getEnvV2(req, res) {
     if (id !== 'presearch') {
       throw new Error(`ENV of ${id} not recognized`);
     }
-    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
-    const pubKeys = [];
-    fluxNodes.data.data.forEach((node) => {
-      if (node.ip.split(':')[0] === ip) {
-        pubKeys.push(node.pubkey);
-      }
-    });
     let verified = !protection;
-    pubKeys.forEach((pubKey) => {
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
-      if (nodeVerified) {
-        verified = true;
-      }
-    });
+    if (!verified) {
+      const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+      const pubKeys = [];
+      fluxNodes.data.data.forEach((node) => {
+        if (node.ip.split(':')[0] === ip) {
+          pubKeys.push(node.pubkey);
+        }
+      });
+      pubKeys.forEach((pubKey) => {
+        const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+        if (nodeVerified) {
+          verified = true;
+        }
+      });
+    }
     if (verified) {
       let envExist = await envService.getEnv(appName);
       if (!envExist) {
         // does not exist in our DB.
         if (id === 'presearch') {
           // create proper env for presearch - private key. appName is the key. Then store it in db
-          // TODO
+          const keys = presearchService.generateKeys(5); // generate 5 presearch keys that are comman separated
+          const data = {
+            env: [`PRIVATE_KEY=${keys}`],
+            envid: appName,
+          };
+          await envService.postEnv(data);
           // load it again
           envExist = await envService.getEnv(appName);
           if (!envExist) {

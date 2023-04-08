@@ -21,20 +21,22 @@ async function getCmd(req, res) {
     if (!cmdExist) {
       throw new Error(`CMD of ${id} does not exist`);
     }
-    const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
-    const pubKeys = [];
-    fluxNodes.data.data.forEach((node) => {
-      if (node.ip.split(':')[0] === ip) {
-        pubKeys.push(node.pubkey);
-      }
-    });
     let verified = !protection;
-    pubKeys.forEach((pubKey) => {
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
-      if (nodeVerified) {
-        verified = true;
-      }
-    });
+    if (!verified) {
+      const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+      const pubKeys = [];
+      fluxNodes.data.data.forEach((node) => {
+        if (node.ip.split(':')[0] === ip) {
+          pubKeys.push(node.pubkey);
+        }
+      });
+      pubKeys.forEach((pubKey) => {
+        const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
+        if (nodeVerified) {
+          verified = true;
+        }
+      });
+    }
     if (verified) {
       res.json(cmdExist);
     } else {
