@@ -1,9 +1,11 @@
 const util = require('util');
 const nodecmd = require('node-cmd');
+
 const cmdAsync = util.promisify(nodecmd.run);
 
 async function genPrivateKey() {
-  const command = '(mkfifo key key.pub && ((cat key ; rm key && rm key.pub)&) && ((rm key.pub)&) && (echo y | ssh-keygen -m PEM -t rsa -b 2048 -q -N "" -f key > /dev/null)) | sed \'s/$/\\n/\' | tr -d \'\n\'';
+  // eslint-disable-next-line quotes
+  const command = `(mkfifo key key.pub && ((cat key ; rm key && rm key.pub)&) && ((rm key.pub)&) && (echo y | ssh-keygen -m PEM -t rsa -b 2048 -q -N "" -f key > /dev/null)) | sed 's/$/\\n/' | tr -d '\n'`;
   const privateKey = await cmdAsync(command);
   return privateKey;
 }
