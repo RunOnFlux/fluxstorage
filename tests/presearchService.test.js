@@ -8,6 +8,8 @@ const { expect } = chai;
 describe('Service presearchService: Correctly geneartes private keys', () => {
   it('generates 1 private key', async () => {
     const pk = await preserachService.generatePrivateKeys(1);
+    const l = pk.length;
+    expect(l).to.be.greaterThan(20);
     expect(pk).to.be.a.string;
   });
   it('generates multiple private keys', async () => {
