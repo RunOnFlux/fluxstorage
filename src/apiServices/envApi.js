@@ -127,7 +127,7 @@ async function getEnvV2(req, res) {
         if (id === 'presearch') {
           // create proper env for presearch - private key. appName is the key. Then store it in db
           // todo there might be env with 5 nodes, before we were generating just 5 keys
-          const keys = await presearchService.generatePrivateKeys(25); // generate 25 presearch keys that are comman separated
+          const keys = await presearchService.generatePrivateKeys(15); // generate 15 presearch keys that are comman separated
           const data = {
             env: [`PRIVATE_KEY=${keys}`],
             envid: appName,
