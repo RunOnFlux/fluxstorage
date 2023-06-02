@@ -135,7 +135,10 @@ async function getEnvV2(req, res) {
             env: [`PRIVATE_KEY=${keys}`],
             envid: appName,
           };
-          await envService.postEnv(data);
+          await envService.postEnv(data).catch((error) => {
+            log.error(error);
+            log.error('Posting ENV fail, proceeding');
+          });
           // load it again
           envExist = await envService.getEnv(appName);
           if (!envExist) {
