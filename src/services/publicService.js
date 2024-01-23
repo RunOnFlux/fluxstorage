@@ -26,13 +26,14 @@ async function postPublic(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const publicCollection = config.collections.public;
+  const query = { publicid: data.publicid };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
   // eslint-disable-next-line no-param-reassign
   data.createdAt = new Date(timestamp);
   // insert to database
-  await serviceHelper.updateOneInDatabase(database, publicCollection, data, { upsert: true });
+  await serviceHelper.updateOneInDatabase(database, publicCollection, query, data, { upsert: true });
   return data; // all ok
 }
 
