@@ -30,6 +30,8 @@ async function postPublic(data) {
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
+  // eslint-disable-next-line no-param-reassign
+  data.createdAt = new Date(timestamp);
   const projection = {
     projection: {
       _id: 0,
