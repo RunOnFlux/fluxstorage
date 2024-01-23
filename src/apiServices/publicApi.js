@@ -2,7 +2,7 @@ const publicService = require('../services/publicService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
 
-async function getpublic(req, res) {
+async function getPublic(req, res) {
   try {
     let { id } = req.params;
     id = id || req.query.id;
@@ -10,7 +10,7 @@ async function getpublic(req, res) {
       res.sendStatus(400);
       return;
     }
-    const publicExist = await publicService.getpublic(id);
+    const publicExist = await publicService.getPublic(id);
     if (!publicExist) {
       throw new Error(`public of ${id} does not exist`);
     }
@@ -21,7 +21,7 @@ async function getpublic(req, res) {
   }
 }
 
-function postpublic(req, res) {
+function postPublic(req, res) {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -41,7 +41,7 @@ function postpublic(req, res) {
         publicid: processedBody.publicid,
       };
 
-      const publicOK = await publicService.postpublic(data);
+      const publicOK = await publicService.postPublic(data);
       if (!publicOK) {
         throw new Error('Failed to update public data');
       }
@@ -56,6 +56,6 @@ function postpublic(req, res) {
 }
 
 module.exports = {
-  getpublic,
-  postpublic,
+  getPublic,
+  postPublic,
 };
