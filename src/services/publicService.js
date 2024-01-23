@@ -33,7 +33,7 @@ async function postPublic(data) {
   // eslint-disable-next-line no-param-reassign
   data.createdAt = new Date(timestamp);
   // insert to database
-  await serviceHelper.updateOneInDatabase(database, publicCollection, query, data, { upsert: true });
+  await serviceHelper.updateOneInDatabase(database, publicCollection, query, { $set: data }, { upsert: true });
   return data; // all ok
 }
 
