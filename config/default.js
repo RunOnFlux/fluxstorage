@@ -16,6 +16,7 @@ module.exports = {
   collections: {
     env: 'env',
     cmd: 'cmd',
+    public: 'public',
     contacts: 'contacts',
   },
 };

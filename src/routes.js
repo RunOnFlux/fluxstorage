@@ -1,5 +1,6 @@
 const envApi = require('./apiServices/envApi');
 const cmdApi = require('./apiServices/cmdApi');
+const publicApi = require('./apiServices/publicApi');
 const contactsApi = require('./apiServices/contactsApi');
 
 module.exports = (app) => {
@@ -29,5 +30,13 @@ module.exports = (app) => {
   // currently unprotected
   app.post('/v1/contacts', (req, res) => {
     contactsApi.postContacts(req, res);
+  });
+  // return public
+  app.get('/v1/public/:id?', (req, res) => {
+    publicApi.getPublic(req, res);
+  });
+  // currently unprotected
+  app.post('/v1/public', (req, res) => {
+    publicApi.postPublic(req, res);
   });
 };
