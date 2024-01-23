@@ -26,25 +26,13 @@ async function postPublic(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const publicCollection = config.collections.public;
-  const query = { publicid: data.publicid };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
   // eslint-disable-next-line no-param-reassign
   data.createdAt = new Date(timestamp);
-  const projection = {
-    projection: {
-      _id: 0,
-      public: 1,
-      publicid: 1,
-    },
-  };
-  const publicExists = await serviceHelper.findOneInDatabase(database, publicCollection, query, projection);
-  if (publicExists) {
-    throw new Error(`PUBLIC of ${data.publicid} already exists, can't be updated`);
-  }
   // insert to database
-  await serviceHelper.insertOneToDatabase(database, publicCollection, data);
+  await serviceHelper.updateOneInDatabase(database, publicCollection, data, { upsert: true });
   return data; // all ok
 }
 
