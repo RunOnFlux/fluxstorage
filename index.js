@@ -16,6 +16,8 @@ setTimeout(() => {
   log.info('Preparing indexes');
   databaseService.doEnvIndexes(); // no waiting
   databaseService.doCmdIndexes(); // no waiting
+  databaseService.doPublicIndexes(); // no waiting
+  databaseService.doContactsIndexes(); // no waiting
 }, 2000);
 
 setTimeout(() => {

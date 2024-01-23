@@ -31,13 +31,27 @@ async function doCmdIndexes() {
   }
 }
 
+async function doPublicIndexes() {
+  try {
+    log.info('public collection indexes');
+    const db = await serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.public).createIndex({ publicid: 1 }); // for querying paritcular public
+
+    log.info('public collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 async function doContactsIndexes() {
   try {
     log.info('contacts collection indexes');
     const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
-    await database.collection(config.collections.contacts).createIndex({ contactsd: 1 }); // for querying paritcular cmd
+    await database.collection(config.collections.contacts).createIndex({ contactsid: 1 }); // for querying paritcular contact
 
     log.info('contacts collection indexes created.');
   } catch (error) {
@@ -48,5 +62,6 @@ async function doContactsIndexes() {
 module.exports = {
   doEnvIndexes,
   doCmdIndexes,
+  doPublicIndexes,
   doContactsIndexes,
 };
