@@ -38,7 +38,6 @@ async function doPublicIndexes() {
     const database = db.db(config.database.database);
 
     await database.collection(config.collections.public).createIndex({ publicid: 1 }); // for querying paritcular public
-    await database.collection(config.database.local.collections.activeSignatures).createIndex({ createdAt: 1 }, { expireAfterSeconds: 120 });
 
     log.info('public collection indexes created.');
   } catch (error) {
