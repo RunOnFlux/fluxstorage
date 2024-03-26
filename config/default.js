@@ -5,6 +5,7 @@ module.exports = {
     port: 9876,
   },
   protection: true, // if flux storage requires fluxos authentication
+  isAuth: true,
   contactsApiKey: secrets.contactsApiKey,
   database: {
     url: '127.0.0.1',

@@ -10,11 +10,11 @@ const qs = require('qs');
 const log = require('../lib/log');
 
 const { MongoClient } = mongodb;
-// const user = encodeURIComponent(config.database.username);
-// const password = encodeURIComponent(config.database.password);
-// const authMechanism = 'DEFAULT';
-// const mongoUrl = `mongodb://${user}:${password}@${config.database.url}:${config.database.port}?authMechanism=${authMechanism}&authSource=admin`;
-const mongoUrl = `mongodb://${config.database.url}:${config.database.port}/`;
+
+const user = encodeURIComponent(config.database.username);
+const password = encodeURIComponent(config.database.password);
+const authMechanism = 'DEFAULT';
+const mongoUrl = config.database.isAuth ? `mongodb://${user}:${password}@${config.database.url}:${config.database.port}?authMechanism=${authMechanism}&authSource=admin` : `mongodb://${config.database.url}:${config.database.port}/`;
 
 let openDBConnection = null;
 
