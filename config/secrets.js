@@ -3,4 +3,5 @@ module.exports = {
   database: 'dbname',
   dbusername: 'dbusername',
   dbpassword: 'dbpassword',
+  isAuth: false,
 };
