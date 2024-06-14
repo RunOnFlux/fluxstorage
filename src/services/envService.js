@@ -22,7 +22,7 @@ async function getEnv(id) {
 }
 
 // data is an object of envid, env
-async function postEnv(data) {
+async function postEnv(data, update = false) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const envCollection = config.collections.env;
@@ -37,12 +37,17 @@ async function postEnv(data) {
       envid: 1,
     },
   };
-  const envExists = await serviceHelper.findOneInDatabase(database, envCollection, query, projection);
-  if (envExists) {
-    throw new Error(`ENV of ${data.envid} already exists, can't be updated`);
+  if (!update) {
+    const envExists = await serviceHelper.findOneInDatabase(database, envCollection, query, projection);
+    if (envExists) {
+      throw new Error(`ENV of ${data.envid} already exists, can't be updated`);
+    }
+    // insert to database
+    await serviceHelper.insertOneToDatabase(database, envCollection, data);
+    return data; // all ok
   }
-  // insert to database
-  await serviceHelper.insertOneToDatabase(database, envCollection, data);
+  // update
+  await serviceHelper.updateOneInDatabase(database, envCollection, query, { $set: data }, { upsert: true });
   return data; // all ok
 }
 
