@@ -22,7 +22,7 @@ async function getContacts(id) {
 }
 
 // data is an object of contactsid, contacts
-async function postContacts(data) {
+async function postContacts(data, update = false) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const contactsCollection = config.collections.contacts;
@@ -37,12 +37,17 @@ async function postContacts(data) {
       contactsid: 1,
     },
   };
-  const contactsExists = await serviceHelper.findOneInDatabase(database, contactsCollection, query, projection);
-  if (contactsExists) {
-    throw new Error(`CONTACTS of ${data.contactsid} already exists, can't be updated`);
+  if (!update) {
+    const contactsExists = await serviceHelper.findOneInDatabase(database, contactsCollection, query, projection);
+    if (contactsExists) {
+      throw new Error(`CONTACTS of ${data.contactsid} already exists, can't be updated`);
+    }
+    // insert to database
+    await serviceHelper.insertOneToDatabase(database, contactsCollection, data);
+    return data; // all ok
   }
-  // insert to database
-  await serviceHelper.insertOneToDatabase(database, contactsCollection, data);
+  // update
+  await serviceHelper.updateOneInDatabase(database, contactsCollection, query, { $set: data }, { upsert: true });
   return data; // all ok
 }
 
