@@ -59,9 +59,24 @@ async function doContactsIndexes() {
   }
 }
 
+async function doNodesIndexes() {
+  try {
+    log.info('nodes collection indexes');
+    const db = await serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.nodes).createIndex({ nodesid: 1 }); // for querying paritcular nodes
+
+    log.info('nodes collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 module.exports = {
   doEnvIndexes,
   doCmdIndexes,
   doPublicIndexes,
   doContactsIndexes,
+  doNodesIndexes,
 };
