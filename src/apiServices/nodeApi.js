@@ -82,7 +82,7 @@ function postNode(req, res) {
         nodeKey: processedBody.nodeKey,
         transactionOutput: processedBody.transactionOutput,
         transactionIndex: processedBody.transactionIndex,
-        nodeNname: processedBody.nodeNname,
+        nodeNname: processedBody.nodeName,
       };
 
       const nodeOK = await nodeService.postNode(data);
