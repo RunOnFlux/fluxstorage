@@ -56,16 +56,33 @@ function postNode(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      if (!processedBody.node) {
-        throw new Error('No node specified');
+      const nodeid = null;
+      if (!processedBody.adminid) {
+        throw new Error('No adminid specified');
       }
-      if (!processedBody.nodeid) {
-        throw new Error('No nodeid specified');
+      if (!processedBody.nodeKey) {
+        throw new Error('No nodeKey specified');
+      }
+      if (!processedBody.transactionOutput) {
+        throw new Error('No transaction output specified');
+      }
+      if (!processedBody.transactionIndex) {
+        throw new Error('No transaction index specified');
+      }
+      if (!processedBody.nodeNname) {
+        throw new Error('No node name specified');
+      }
+      if (processedBody.nodeid) {
+        nodeid = processedBody.nodeid;
       }
 
       const data = {
-        node: processedBody.node,
-        nodeid: processedBody.node,
+        nodeid: nodeid,
+        adminid: processedBody.adminid,
+        nodeKey: processedBody.nodeKey,
+        transactionOutput: processedBody.transactionOutput,
+        transactionIndex: processedBody.transactionIndex,
+        nodeNname: processedBody.nodeNname,
       };
 
       const nodeOK = await nodeService.postNode(data);
