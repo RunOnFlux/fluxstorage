@@ -21,7 +21,6 @@ async function getNode(id) {
   throw new Error(`Node ${id} not found`);
 }
 
-// data is an object of envid, env
 async function postNode(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
