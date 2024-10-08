@@ -48,4 +48,12 @@ module.exports = (app) => {
   app.post('/v2/node', (req, res) => {
     nodeApi.postNode(req, res);
   });
+  // return notification info
+  app.get('/v2/notification/:id?', (req, res) => {
+    notificatiomApi.getNotificaiionInfo(req, res);
+  });
+  // currently unprotected
+  app.post('/v2/notification', (req, res) => {
+    notificatiomApi.postNotificaiionInfo(req, res);
+  });
 };

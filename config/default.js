@@ -20,5 +20,6 @@ module.exports = {
     public: 'public',
     contacts: 'contacts',
     nodes: 'nodes',
+    notifications: 'notifications',
   },
 };
