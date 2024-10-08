@@ -55,20 +55,23 @@ function postNotificationInfo(req, res) {
     try {
       const processedBody = serviceHelper.ensureObject(body);
       const notificationid = null;
-      if (!processedBody.adminid) {
-        throw new Error('No adminid specified');
+      if (!processedBody.fluxid) {
+        throw new Error('fluxid not specified');
       }
-      if (!processedBody.nodeKey) {
-        throw new Error('No nodeKey specified');
+      if (!processedBody.ping) {
+        throw new Error('ping not specified');
       }
-      if (!processedBody.transactionOutput) {
-        throw new Error('No transaction output specified');
+      if (!processedBody.web_hook_url) {
+        throw new Error('web_hook_url not specified');
       }
-      if (!processedBody.transactionIndex) {
-        throw new Error('No transaction index specified');
+      if (!processedBody.telegram_alert) {
+        throw new Error('telegram_alert not specified');
       }
-      if (!processedBody.nodeNname) {
-        throw new Error('No node name specified');
+      if (!processedBody.telegram_bot_token) {
+        throw new Error('telegram_bot_token not specified');
+      }
+      if (!processedBody.telegram_chat_id) {
+        throw new Error('telegram_chat_id not specified');
       }
       if (processedBody.notificationid) {
         notificationid = processedBody.notificationid;
@@ -76,11 +79,12 @@ function postNotificationInfo(req, res) {
 
       const data = {
         notificationid: notificationid,
-        adminid: processedBody.adminid,
-        notificationKey: processedBody.notificationKey,
-        transactionOutput: processedBody.transactionOutput,
-        transactionIndex: processedBody.transactionIndex,
-        notificationNname: processedBody.notificationName,
+        fluxid: processedBody.fluxid,
+        ping: processedBody.ping,
+        web_hook_url: processedBody.web_hook_url,
+        telegram_alert: processedBody.telegram_alert,
+        telegram_bot_token: processedBody.telegram_bot_token,
+        telegram_chat_id: processedBody.telegram_chat_id,
       };
 
       const notificationOK = await notificationService.postnotification(data);
