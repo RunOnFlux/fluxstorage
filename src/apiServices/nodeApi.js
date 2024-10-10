@@ -21,22 +21,8 @@ async function getNode(req, res) {
     if (!nodeExist) {
       throw new Error(`Node ${id} does not exist`);
     }
-    let verified = !protection;
-    if (!verified) {
-      const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
-      const pubKeys = [];
-      fluxNodes.data.data.forEach((node) => {
-        if (node.ip.split(':')[0] === ip) {
-          pubKeys.push(node.pubkey);
-        }
-      });
-      pubKeys.forEach((pubKey) => {
-        const nodeVerified = serviceHelper.verifyMessage(messageToVerify, pubKey, signature);
-        if (nodeVerified) {
-          verified = true;
-        }
-      });
-    }
+    // no verification ATM
+    let verified = true;
     if (verified) {
       res.json(nodeExist);
     } else {
