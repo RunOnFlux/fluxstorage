@@ -11,12 +11,6 @@ async function getNode(req, res) {
       res.sendStatus(400);
       return;
     }
-    // get IP
-    // get deterministic node list todo daemon/viewdeterministcizelnodelist, use cache and constant refreshing of it
-    // from ip get nodes that are fine, array of pub keys, do verification
-    const signature = req.headers['flux-signature'];
-    const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
     const nodeExist = await nodeService.getNode(id);
     if (!nodeExist) {
       throw new Error(`Node ${id} does not exist`);

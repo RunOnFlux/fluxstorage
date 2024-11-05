@@ -49,6 +49,6 @@ async function postNotification(data) {
 }
 
 module.exports = {
-  getnotification,
-  postnotification,
+  getNotification,
+  postNotification,
 };

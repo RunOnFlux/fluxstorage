@@ -11,10 +11,6 @@ async function getNotificationInfo(req, res) {
       res.sendStatus(400);
       return;
     }
-
-    const signature = req.headers['flux-signature'];
-    const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
     const notificationExist = await notificationService.getNotification(id);
     if (!notificationExist) {
       throw new Error(`notification ${id} does not exist`);
@@ -73,7 +69,7 @@ function postNotificationInfo(req, res) {
         telegram_chat_id: processedBody.telegram_chat_id,
       };
 
-      const notificationOK = await notificationService.postnotification(data);
+      const notificationOK = await notificationService.postNotification(data);
       if (!notificationOK) {
         throw new Error('Failed to update notification data');
       }
