@@ -49,7 +49,7 @@ function postNode(req, res) {
       if (!processedBody.transactionIndex) {
         throw new Error('No transaction index specified');
       }
-      if (!processedBody.nodeNname) {
+      if (!processedBody.nodeName) {
         throw new Error('No node name specified');
       }
       if (processedBody.nodeid) {
@@ -62,7 +62,7 @@ function postNode(req, res) {
         nodeKey: processedBody.nodeKey,
         transactionOutput: processedBody.transactionOutput,
         transactionIndex: processedBody.transactionIndex,
-        nodeNname: processedBody.nodeName,
+        nodeName: processedBody.nodeName,
       };
 
       const nodeOK = await nodeService.postNode(data);
