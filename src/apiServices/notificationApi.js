@@ -37,36 +37,36 @@ function postNotificationInfo(req, res) {
     try {
       const processedBody = serviceHelper.ensureObject(body);
       const notificationid = null;
-      if (!processedBody.fluxid) {
+      if (!processedBody.fluxId) {
         throw new Error('fluxid not specified');
       }
       if (!processedBody.ping) {
         throw new Error('ping not specified');
       }
-      if (!processedBody.web_hook_url) {
+      if (!processedBody.webhookUrl) {
         throw new Error('web_hook_url not specified');
       }
-      if (!processedBody.telegram_alert) {
+      if (!processedBody.telegramAlert) {
         throw new Error('telegram_alert not specified');
       }
-      if (!processedBody.telegram_bot_token) {
+      if (!processedBody.telegramBotToken) {
         throw new Error('telegram_bot_token not specified');
       }
-      if (!processedBody.telegram_chat_id) {
+      if (!processedBody.telegramChatId) {
         throw new Error('telegram_chat_id not specified');
       }
-      if (processedBody.notificationid) {
-        notificationid = processedBody.notificationid;
+      if (processedBody.notificationId) {
+        notificationid = processedBody.notificationId;
       }
 
       const data = {
         notificationid: notificationid,
-        fluxid: processedBody.fluxid,
+        fluxid: processedBody.fluxId,
         ping: processedBody.ping,
-        web_hook_url: processedBody.web_hook_url,
-        telegram_alert: processedBody.telegram_alert,
-        telegram_bot_token: processedBody.telegram_bot_token,
-        telegram_chat_id: processedBody.telegram_chat_id,
+        web_hook_url: processedBody.webhookUrl,
+        telegram_alert: processedBody.telegramAlert,
+        telegram_bot_token: processedBody.telegramBotToken,
+        telegram_chat_id: processedBody.telegramChatId,
       };
 
       const notificationOK = await notificationService.postNotification(data);
