@@ -65,7 +65,7 @@ async function doNodesIndexes() {
     const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
-    await database.collection(config.collections.nodes).createIndex({ nodesid: 1 }); // for querying paritcular nodes
+    await database.collection(config.collections.nodes).createIndex({ nodeid: 1 }); // for querying paritcular nodes
 
     log.info('nodes collection indexes created.');
   } catch (error) {
