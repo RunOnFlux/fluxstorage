@@ -256,6 +256,9 @@ async function getEnvV2(req, res) {
             // something went wrong
             throw new Error(`Failed to obtain ENV of ${id} ${appName}.`);
           }
+        } else {
+          keysGenerated = envExist[0].replace('PRIVATE_KEY=', '');
+          presearchKeysCache.set(appName, keysGenerated);
         }
         adjEnv.push(envExist[0]);
       }
