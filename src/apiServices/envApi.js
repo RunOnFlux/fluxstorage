@@ -1,8 +1,18 @@
 const { protection } = require('config');
+const { LRUCache } = require('lru-cache');
+const axios = require('axios');
 const envService = require('../services/envService');
 const serviceHelper = require('../services/serviceHelper');
 const presearchService = require('../services/presearchService');
 const log = require('../lib/log');
+
+const presearchKeysCacheInfo = {
+  max: 100,
+  ttl: 1000 * 60 * 60 * 2, // 2 hours
+  maxAge: 1000 * 60 * 60 * 2, // 2 hours
+};
+
+const presearchKeysCache = new LRUCache(presearchKeysCacheInfo);
 
 async function getEnv(req, res) {
   try {
@@ -83,6 +93,32 @@ function postEnv(req, res) {
   });
 }
 
+async function getGlobalAppSpec(appname) {
+  try {
+    const url = `https://api.runonflux.io/apps/appspecifications/${appname}`;
+    const response = await axios.get(url);
+    if (response.data.status === 'success') {
+      return response.data.data;
+    }
+    return null;
+  } catch (error) {
+    log.error(error);
+    return null;
+  }
+}
+
+/**
+ * To delay by a number of milliseconds.
+ * @param {number} ms Number of milliseconds.
+ * @returns {Promise} Promise object.
+ */
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+// function created to get presearch private keys
 async function getEnvV2(req, res) {
   try {
     let { id } = req.params;
@@ -121,18 +157,93 @@ async function getEnvV2(req, res) {
       });
     }
     if (verified) {
-      let envExist = await envService.getEnv(appName).catch(() => log.info(`Preserach ${appName} creation`));
-      if (!envExist) {
-        // does not exist in our DB.
-        if (id === 'presearch') {
+      let instances = 3;
+      let envExist = null;
+      let keysGenerated = '';
+      const adjEnv = [];
+      const appSpecs = getGlobalAppSpec(appName);
+      if (appSpecs) {
+        instances = appSpecs.instances || 3;
+      }
+      if (presearchKeysCache.has(appName)) {
+        // if appName is on cache means it was executed already once in the last hour, the first execution is resaponsable for fill up the DB and update cache
+        let keys = presearchKeysCache.get(appName);
+        if (keys.split(',').length < instances) {
+          await delay(10 * 1000); // 10 seconds delay should give enought time to get several keys and timeout on fluxOs is 20 seconds
+          keys = presearchKeysCache.get(appName);
+          if (keys.split(',').length === 0) {
+            // if no key exist we delete it from cache so next call we generate again and store on DB
+            presearchKeysCache.delete(appName);
+            throw new Error('NO KEY FOUND ON CACHE');
+          }
+        }
+        log.info(`Found in cache ${keys.split(',').length} pks for the presearch app ${appName}`);
+        adjEnv.push(`PRIVATE_KEY=${keys}`);
+      } else {
+        presearchKeysCache.set(appName, ''); // we put it on cache so any other call that is done right after gets the info from cache
+        envExist = await envService.getEnv(appName).catch(() => log.info(`Preserach ${appName} creation`));
+        if (!envExist) {
+          log.info(`Presearch app ${appName} not found in storage`);
+          // does not exist in our DB.
           // create proper env for presearch - private key. appName is the key. Then store it in db
           // todo there might be env with 5 nodes, before we were generating just 5 keys
-          const keys = await presearchService.generatePrivateKeys(15); // generate 15 presearch keys that are comman separated
-          if (keys.includes(',,')) {
-            throw new Error('ERROR PRESEARCH GENERATION');
+          let run = 0;
+          while (keysGenerated.split(',').length <= instances && run < 30) {
+            run += 1;
+            // eslint-disable-next-line no-await-in-loop
+            const keys = await presearchService.generatePrivateKeys(4); // generate 4 keys each time until we have more keys than the instances required
+            if (keys.includes(',,')) {
+              throw new Error('ERROR PRESEARCH GENERATION');
+            }
+            if (keysGenerated.length > 1) {
+              keysGenerated += ',';
+            }
+            keysGenerated += keys;
+            presearchKeysCache.set(appName, keysGenerated);
+            keysGenerated = presearchKeysCache.get(appName); // we are doing this in case it's being called more than once at same time
           }
+          presearchKeysCache.set(appName, keysGenerated);
+          log.info(`Generated ${keysGenerated.split(',').length} pks for the presearch app ${appName}`);
+          // we only store on db once all keys are generated
           const data = {
-            env: [`PRIVATE_KEY=${keys}`],
+            env: [`PRIVATE_KEY=${keysGenerated}`],
+            envid: appName,
+          };
+          await envService.postEnv(data).catch((error) => {
+            log.error(error);
+            log.error('Posting ENV fail, proceeding');
+          });
+          // load it again
+          envExist = await envService.getEnv(appName);
+          if (!envExist) {
+            // something went wrong
+            throw new Error(`Failed to obtain ENV of ${id} ${appName}.`);
+          }
+        } else if (envExist[0].split(',').length < instances) {
+          log.info(`Presearch app ${appName} found in storage with ${envExist[0].split(',').length} pks but instances rented are ${instances}`);
+          // so the app was for example updated and it's now running more instances, let's update the DB
+          // eslint-disable-next-line prefer-destructuring
+          keysGenerated = envExist[0].replace('PRIVATE_KEY=', '');
+          let run = 0;
+          while (keysGenerated.split(',').length <= instances && run < 30) {
+            run += 1;
+            // eslint-disable-next-line no-await-in-loop
+            const keys = await presearchService.generatePrivateKeys(4); // generate 4 keys each time until we have more keys than the instances required
+            if (keys.includes(',,')) {
+              throw new Error('ERROR PRESEARCH GENERATION');
+            }
+            if (keysGenerated.length > 1) {
+              keysGenerated += ',';
+            }
+            keysGenerated += keys;
+            presearchKeysCache.set(appName, keysGenerated);
+            keysGenerated = presearchKeysCache.get(appName); // we are doing this in case it's being called more than once at same time
+          }
+          presearchKeysCache.set(appName, keysGenerated);
+          log.info(`Generated missing pks for the presearch app ${appName}, total ${keysGenerated.split(',').length}`);
+          // we only store on db once all keys are generated
+          const data = {
+            env: [`PRIVATE_KEY=${keysGenerated}`],
             envid: appName,
           };
           await envService.postEnv(data).catch((error) => {
@@ -146,15 +257,8 @@ async function getEnvV2(req, res) {
             throw new Error(`Failed to obtain ENV of ${id} ${appName}.`);
           }
         }
+        adjEnv.push(envExist[0]);
       }
-      const adjEnv = [];
-      envExist.forEach((env) => {
-        // eslint-disable-next-line no-param-reassign
-        const newEnv = env.replace(/KEY-----/g, 'KEY-----\n');
-        // eslint-disable-next-line no-param-reassign
-        const newEnvB = newEnv.replace(/-----END/g, '\n-----END');
-        adjEnv.push(newEnvB);
-      });
       res.json(adjEnv);
     } else {
       res.sendStatus(403);
