@@ -1,6 +1,5 @@
 const { protection } = require('config');
 const { LRUCache } = require('lru-cache');
-const axios = require('axios');
 const envService = require('../services/envService');
 const serviceHelper = require('../services/serviceHelper');
 const presearchService = require('../services/presearchService');
@@ -151,7 +150,6 @@ async function createPresearchNodePrivateKeys(appName, numberOfKeys) {
     env: [`PRIVATE_KEY=${keysGenerated}`],
     envid: appName,
   };
-  log.info(data);
   await envService.postEnv(data).catch((error) => {
     log.error(error);
     log.error('Posting ENV fail, proceeding');
@@ -243,27 +241,7 @@ async function getEnvV2(req, res) {
           }
         } else if (envExist[0].split(',').length < instances) {
           log.info(`Presearch app ${appName} found in storage with ${envExist[0].split(',').length} pks but instances rented are ${instances}`);
-          // so the app was for example updated and it's now running more instances, let's update the DB
-          // eslint-disable-next-line prefer-destructuring
-          keysGenerated = envExist[0].replace('PRIVATE_KEY=', '');
-          presearchKeysCache.set(appName, keysGenerated);
-          setTimeout(() => {
-            createPresearchNodePrivateKeys(appName, instances);
-          }, 50);
-          await delay(10 * 1000); // 10 seconds delay should give enought time to get several keys and timeout on fluxOs is 20 seconds
-          if (presearchKeysCache.has(appName)) {
-            const keys = presearchKeysCache.get(appName);
-            if (keys.split(',').length === 0) {
-              // if no key exist we delete it from cache so next call we generate again and store on DB
-              presearchKeysCache.delete(appName);
-              throw new Error('NO KEY FOUND ON CACHE');
-            }
-            log.info(`Found in cache after generating ${keys.split(',').length} keys for the presearch app ${appName}`);
-            adjEnv.push(`PRIVATE_KEY=${keys}`);
-          } else {
-            presearchKeysCache.delete(appName);
-            throw new Error('NO KEY FOUND ON CACHE');
-          }
+          throw new Error('NOT POSSIBLE TO CHANGE STORAGE INFO');
         } else {
           log.info(`Presearch app ${appName} found in storage with ${envExist[0].split(',').length} pks where instances rented are ${instances}`);
           keysGenerated = envExist[0].replace('PRIVATE_KEY=', '');
@@ -271,7 +249,15 @@ async function getEnvV2(req, res) {
         }
         adjEnv.push(envExist[0]);
       }
-      res.json(adjEnv);
+      const responseObject = [];
+      adjEnv.forEach((env) => {
+        // eslint-disable-next-line no-param-reassign
+        const newEnv = env.replace(/KEY-----/g, 'KEY-----\n');
+        // eslint-disable-next-line no-param-reassign
+        const newEnvB = newEnv.replace(/-----END/g, '\n-----END');
+        adjEnv.push(newEnvB);
+      });
+      res.json(responseObject);
     } else {
       res.sendStatus(403);
     }
