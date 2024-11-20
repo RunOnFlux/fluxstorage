@@ -151,6 +151,7 @@ async function createPresearchNodePrivateKeys(appName, numberOfKeys) {
     env: [`PRIVATE_KEY=${keysGenerated}`],
     envid: appName,
   };
+  log.info(data);
   await envService.postEnv(data).catch((error) => {
     log.error(error);
     log.error('Posting ENV fail, proceeding');
