@@ -95,13 +95,10 @@ function postEnv(req, res) {
 
 async function getGlobalAppSpec(appName) {
   try {
-    log.info(`Checking app registration for ${appName}`);
     const response = await serviceHelper.axiosGet(`https://api.runonflux.io/apps/appspecifications/${appName}`);
     if (response.data.status === 'success') {
-      log.info(JSON.stringify(response.data.data));
       return response.data.data;
     }
-    log.info(`No success checking app registration for ${appName}`);
     return null;
   } catch (error) {
     log.error(error);
@@ -203,9 +200,8 @@ async function getEnvV2(req, res) {
       let envExist = null;
       let keysGenerated = '';
       const adjEnv = [];
-      const appSpecs = getGlobalAppSpec(appName);
+      const appSpecs = await getGlobalAppSpec(appName);
       if (appSpecs) {
-        log.info(JSON.stringify(appSpecs));
         instances = appSpecs.instances || 3;
       }
       if (presearchKeysCache.has(appName)) {
