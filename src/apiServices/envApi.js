@@ -247,7 +247,7 @@ async function getEnvV2(req, res) {
           keysGenerated = envExist[0].replace('PRIVATE_KEY=', '');
           presearchKeysCache.set(appName, keysGenerated);
           setTimeout(() => {
-            createPresearchNodePrivateKeys(appName, (instances + 1) - envExist[0].split(',').length);
+            createPresearchNodePrivateKeys(appName, instances);
           }, 50);
           await delay(10 * 1000); // 10 seconds delay should give enought time to get several keys and timeout on fluxOs is 20 seconds
           if (presearchKeysCache.has(appName)) {
