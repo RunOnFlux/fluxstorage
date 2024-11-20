@@ -95,8 +95,7 @@ function postEnv(req, res) {
 
 async function getGlobalAppSpec(appname) {
   try {
-    const url = `https://api.runonflux.io/apps/appspecifications/${appname}`;
-    const response = await axios.get(url);
+    const response = await serviceHelper.axiosGet(`https://api.runonflux.io/apps/appspecifications/${appname}`);
     if (response.data.status === 'success') {
       return response.data.data;
     }
