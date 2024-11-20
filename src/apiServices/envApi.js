@@ -93,13 +93,15 @@ function postEnv(req, res) {
   });
 }
 
-async function getGlobalAppSpec(appname) {
+async function getGlobalAppSpec(appName) {
   try {
-    const response = await serviceHelper.axiosGet(`https://api.runonflux.io/apps/appspecifications/${appname}`);
-    log.info(JSON.stringify(response));
+    log.info(`Checking app registration for ${appName}`);
+    const response = await serviceHelper.axiosGet(`https://api.runonflux.io/apps/appspecifications/${appName}`);
     if (response.data.status === 'success') {
+      log.info(JSON.stringify(response.data.data));
       return response.data.data;
     }
+    log.info(`No success checking app registration for ${appName}`);
     return null;
   } catch (error) {
     log.error(error);
