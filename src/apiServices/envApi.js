@@ -203,6 +203,7 @@ async function getEnvV2(req, res) {
       const adjEnv = [];
       const appSpecs = getGlobalAppSpec(appName);
       if (appSpecs) {
+        log.info(JSON.stringify(appSpecs));
         instances = appSpecs.instances || 3;
       }
       if (presearchKeysCache.has(appName)) {
