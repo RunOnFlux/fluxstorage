@@ -65,11 +65,8 @@ function postNode(req, res) {
         nodeName: processedBody.nodeName,
       };
 
-      const nodeOK = await nodeService.postNode(data);
-      if (!nodeOK) {
-        throw new Error('Failed to update node data');
-      }
-      const result = serviceHelper.createDataMessage(nodeOK);
+      const postResult = await nodeService.postNode(data);
+      const result = serviceHelper.createDataMessage(postResult);
       res.json(result);
     } catch (error) {
       log.error(error);

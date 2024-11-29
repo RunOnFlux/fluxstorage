@@ -38,12 +38,11 @@ async function postNotification(data) {
   const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, projection);
   if (notificationExists) {
     // update
-    await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
+    return await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
   } else {
     // insert to database
-    await serviceHelper.insertOneToDatabase(database, notificationCollection, data);
+    return await serviceHelper.insertOneToDatabase(database, notificationCollection, data);
   }
-  return data; // all ok
 }
 
 module.exports = {

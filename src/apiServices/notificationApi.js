@@ -69,11 +69,8 @@ function postNotificationInfo(req, res) {
         telegram_chat_id: processedBody.telegramChatId,
       };
 
-      const notificationOK = await notificationService.postNotification(data);
-      if (!notificationOK) {
-        throw new Error('Failed to update notification data');
-      }
-      const result = serviceHelper.createDataMessage(notificationOK);
+      const postResult = await notificationService.postNotification(data);
+      const result = serviceHelper.createDataMessage(postResult);
       res.json(result);
     } catch (error) {
       log.error(error);

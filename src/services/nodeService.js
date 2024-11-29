@@ -38,12 +38,11 @@ async function postNode(data) {
   const nodeExists = await serviceHelper.findOneInDatabase(database, nodeCollection, query, projection);
   if (nodeExists) {
     // update
-    await serviceHelper.updateOneInDatabase(database, nodeCollection, query, { $set: data }, { upsert: true });
+    return await serviceHelper.updateOneInDatabase(database, nodeCollection, query, { $set: data }, { upsert: true });
   } else {
     // insert to database
-    await serviceHelper.insertOneToDatabase(database, nodeCollection, data);
+    return await serviceHelper.insertOneToDatabase(database, nodeCollection, data);
   }
-  return data; // all ok
 }
 
 module.exports = {
