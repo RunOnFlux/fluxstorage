@@ -6,12 +6,11 @@ async function getNotification(id) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { envid: id };
+  const query = { _id: id };
   const projection = {
     projection: {
       _id: 0,
-      notification: 1,
-      notificationid: 1,
+      notifications: 1,
     },
   };
   const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, projection);
@@ -25,15 +24,14 @@ async function postNotification(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { notificationid: data.notificationid };
+  const query = { _id: data.id };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
   const projection = {
     projection: {
       _id: 0,
-      notification: 1,
-      notificationid: 1,
+      notifications: 1,
     },
   };
 

@@ -36,7 +36,7 @@ function postNode(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      const nodeid = null;
+      const id = null;
       if (!processedBody.adminId) {
         throw new Error('No adminid specified');
       }
@@ -52,12 +52,12 @@ function postNode(req, res) {
       if (!processedBody.nodeName) {
         throw new Error('No node name specified');
       }
-      if (processedBody.nodeId) {
-        nodeid = processedBody.nodeId;
+      if (processedBody.id) {
+        id = processedBody.id;
       }
 
       const data = {
-        nodeid: nodeid,
+        id,
         adminid: processedBody.adminId,
         nodeKey: processedBody.nodeKey,
         transactionOutput: processedBody.transactionOutput,

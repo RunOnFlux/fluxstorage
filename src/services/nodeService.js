@@ -6,12 +6,11 @@ async function getNode(id) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const nodeCollection = config.collections.nodes;
-  const query = { envid: id };
+  const query = { _id: id };
   const projection = {
     projection: {
       _id: 0,
-      node: 1,
-      nodeid: 1,
+      nodes: 1,
     },
   };
   const nodeRes = await serviceHelper.findOneInDatabase(database, nodeCollection, query, projection);
@@ -25,15 +24,14 @@ async function postNode(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const nodeCollection = config.collections.nodes;
-  const query = { nodeid: data.nodeid };
+  const query = { _id: data.id };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
   const projection = {
     projection: {
       _id: 0,
-      node: 1,
-      nodeid: 1,
+      nodes: 1,
     },
   };
 

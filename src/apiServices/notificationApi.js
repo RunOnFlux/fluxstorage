@@ -36,7 +36,7 @@ function postNotificationInfo(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      const notificationid = null;
+      const id = null;
       if (!processedBody.fluxId) {
         throw new Error('fluxid not specified');
       }
@@ -55,12 +55,12 @@ function postNotificationInfo(req, res) {
       if (!processedBody.telegramChatId) {
         throw new Error('telegram_chat_id not specified');
       }
-      if (processedBody.notificationId) {
-        notificationid = processedBody.notificationId;
+      if (processedBody.id) {
+        id = processedBody.id;
       }
 
       const data = {
-        notificationid: notificationid,
+        id,
         fluxid: processedBody.fluxId,
         ping: processedBody.ping,
         web_hook_url: processedBody.webhookUrl,
