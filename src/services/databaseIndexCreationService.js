@@ -59,9 +59,39 @@ async function doContactsIndexes() {
   }
 }
 
+async function doNodesIndexes() {
+  try {
+    log.info('nodes collection indexes');
+    const db = await serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.nodes).createIndex({ nodeid: 1 }); // for querying paritcular nodes
+
+    log.info('nodes collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
+async function doNotificationsIndexes() {
+  try {
+    log.info('notification collection indexes');
+    const db = await serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.notifications).createIndex({ notificationid: 1 }); // for querying paritcular notification
+
+    log.info('notification collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 module.exports = {
   doEnvIndexes,
   doCmdIndexes,
   doPublicIndexes,
   doContactsIndexes,
+  doNodesIndexes,
+  doNotificationsIndexes,
 };
