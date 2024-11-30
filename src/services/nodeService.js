@@ -1,4 +1,5 @@
 const config = require('config');
+const { ObjectId } = require('mongodb');
 
 const serviceHelper = require('./serviceHelper');
 
@@ -6,16 +7,12 @@ async function getNode(id) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const nodeCollection = config.collections.nodes;
-  const query = { _id: id };
-  const projection = {
-    projection: {
-      _id: 0,
-      nodes: 1,
-    },
-  };
-  const nodeRes = await serviceHelper.findOneInDatabase(database, nodeCollection, query, projection);
+  const query = { _id: new ObjectId(id) };
+  console.log(query);
+  const nodeRes = await serviceHelper.findOneInDatabase(database, nodeCollection, query, {});
+  console.log(nodeRes);
   if (nodeRes) {
-    return nodeRes.node;
+    return nodeRes;
   }
   throw new Error(`Node ${id} not found`);
 }
@@ -24,23 +21,21 @@ async function postNode(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const nodeCollection = config.collections.nodes;
-  const query = { _id: data.id };
+  const query = { _id: new ObjectId(data.id) };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
-  const projection = {
-    projection: {
-      _id: 0,
-      nodes: 1,
-    },
-  };
-
-  const nodeExists = await serviceHelper.findOneInDatabase(database, nodeCollection, query, projection);
+  // eslint-disable-next-line no-param-reassign
+  delete data.id;
+  const nodeExists = await serviceHelper.findOneInDatabase(database, nodeCollection, query, {});
   if (nodeExists) {
     // update
+    // eslint-disable-next-line no-return-await
     return await serviceHelper.updateOneInDatabase(database, nodeCollection, query, { $set: data }, { upsert: true });
+  // eslint-disable-next-line no-else-return
   } else {
     // insert to database
+    // eslint-disable-next-line no-return-await
     return await serviceHelper.insertOneToDatabase(database, nodeCollection, data);
   }
 }

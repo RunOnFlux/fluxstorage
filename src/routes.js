@@ -2,7 +2,8 @@ const envApi = require('./apiServices/envApi');
 const cmdApi = require('./apiServices/cmdApi');
 const publicApi = require('./apiServices/publicApi');
 const contactsApi = require('./apiServices/contactsApi');
-const nodeApi = require('./apiServices/nodesApi');
+const nodeApi = require('./apiServices/nodeApi');
+const notificationApi = require('./apiServices/notificationApi');
 
 module.exports = (app) => {
   // return env
@@ -50,10 +51,10 @@ module.exports = (app) => {
   });
   // return notification info
   app.get('/v2/notification/:id?', (req, res) => {
-    notificatiomApi.getNotificaiionInfo(req, res);
+    notificationApi.getNotificationInfo(req, res);
   });
   // currently unprotected
   app.post('/v2/notification', (req, res) => {
-    notificatiomApi.postNotificaiionInfo(req, res);
+    notificationApi.postNotificationInfo(req, res);
   });
 };

@@ -1,4 +1,6 @@
+/* eslint-disable no-return-await */
 const config = require('config');
+const { ObjectId } = require('mongodb');
 
 const serviceHelper = require('./serviceHelper');
 
@@ -6,16 +8,11 @@ async function getNotification(id) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { _id: id };
-  const projection = {
-    projection: {
-      _id: 0,
-      notifications: 1,
-    },
-  };
-  const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, projection);
+  const query = { _id: new ObjectId(id) };
+
+  const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
   if (notificationRes) {
-    return notificationRes.notification;
+    return notificationRes;
   }
   throw new Error(`notification ${id} not found`);
 }
@@ -24,21 +21,17 @@ async function postNotification(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { _id: data.id };
+  const query = { _id: new ObjectId(data.id) };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
-  const projection = {
-    projection: {
-      _id: 0,
-      notifications: 1,
-    },
-  };
-
-  const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, projection);
+  // eslint-disable-next-line no-param-reassign
+  delete data.id;
+  const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
   if (notificationExists) {
     // update
     return await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
+  // eslint-disable-next-line no-else-return
   } else {
     // insert to database
     return await serviceHelper.insertOneToDatabase(database, notificationCollection, data);

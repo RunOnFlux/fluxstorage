@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const { protection } = require('config');
 const nodeService = require('../services/nodeService');
 const serviceHelper = require('../services/serviceHelper');
@@ -16,6 +17,7 @@ async function getNode(req, res) {
       throw new Error(`Node ${id} does not exist`);
     }
     // no verification ATM
+    // eslint-disable-next-line prefer-const
     let verified = true;
     if (verified) {
       res.json(nodeExist);
@@ -36,9 +38,9 @@ function postNode(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      const id = null;
+      let id = null;
       if (!processedBody.adminId) {
-        throw new Error('No adminid specified');
+        throw new Error('No adminId specified');
       }
       if (!processedBody.nodeKey) {
         throw new Error('No nodeKey specified');

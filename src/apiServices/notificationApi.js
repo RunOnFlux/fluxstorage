@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const { protection } = require('config');
 const notificationService = require('../services/notificationService');
 const serviceHelper = require('../services/serviceHelper');
@@ -16,6 +17,7 @@ async function getNotificationInfo(req, res) {
       throw new Error(`notification ${id} does not exist`);
     }
     // no verification ATM
+    // eslint-disable-next-line prefer-const
     let verified = true;
     if (verified) {
       res.json(notificationExist);
@@ -36,7 +38,7 @@ function postNotificationInfo(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      const id = null;
+      let id = null;
       if (!processedBody.fluxId) {
         throw new Error('fluxid not specified');
       }
