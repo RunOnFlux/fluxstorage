@@ -8,9 +8,7 @@ async function getNode(id) {
   const database = db.db(config.database.database);
   const nodeCollection = config.collections.nodes;
   const query = { _id: new ObjectId(id) };
-  console.log(query);
   const nodeRes = await serviceHelper.findOneInDatabase(database, nodeCollection, query, {});
-  console.log(nodeRes);
   if (nodeRes) {
     return nodeRes;
   }
