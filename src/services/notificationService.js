@@ -1,32 +1,29 @@
 /* eslint-disable no-return-await */
 const config = require('config');
-const { ObjectId } = require('mongodb');
 
 const serviceHelper = require('./serviceHelper');
 
-async function getNotification(id) {
+async function getNotification(notificationFluxId) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { _id: new ObjectId(id) };
+  const query = { fluxId: notificationFluxId };
 
   const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
   if (notificationRes) {
     return notificationRes;
   }
-  throw new Error(`notification ${id} not found`);
+  throw new Error(`notification for ${notificationFluxId} not found`);
 }
 
 async function postNotification(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
-  const query = { _id: new ObjectId(data.id) };
+  const query = { fluxId: data.fluxId };
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
-  // eslint-disable-next-line no-param-reassign
-  delete data.id;
   const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
   if (notificationExists) {
     // update

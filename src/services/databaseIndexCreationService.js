@@ -79,7 +79,7 @@ async function doNotificationsIndexes() {
     const db = await serviceHelper.databaseConnection();
     const database = db.db(config.database.database);
 
-    await database.collection(config.collections.notifications).createIndex({ notificationid: 1 }); // for querying paritcular notification
+    await database.collection(config.collections.notifications).createIndex({ fluxId: 1 }); // for querying paritcular notification
 
     log.info('notification collection indexes created.');
   } catch (error) {
