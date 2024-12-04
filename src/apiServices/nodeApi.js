@@ -60,7 +60,7 @@ function postNode(req, res) {
 
       const data = {
         id,
-        adminid: processedBody.adminId,
+        adminId: processedBody.adminId,
         nodeKey: processedBody.nodeKey,
         transactionOutput: processedBody.transactionOutput,
         transactionIndex: processedBody.transactionIndex,
