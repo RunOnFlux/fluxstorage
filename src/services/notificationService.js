@@ -27,6 +27,8 @@ async function postNotification(data) {
   const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
   if (notificationExists) {
     // update
+    // eslint-disable-next-line no-param-reassign
+    if (notificationExists.sshKey !== '' && data.sshKey === '') data.sshKey = notificationExists.sshKey;
     return await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
   // eslint-disable-next-line no-else-return
   } else {

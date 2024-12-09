@@ -32,6 +32,7 @@ async function getNotificationInfo(req, res) {
 
 function postNotificationInfo(req, res) {
   let body = '';
+  let sshKey = '';
   req.on('data', (data) => {
     body += data;
   });
@@ -56,6 +57,9 @@ function postNotificationInfo(req, res) {
       if (!processedBody.telegramChatId) {
         throw new Error('telegram_chat_id not specified');
       }
+      if (processedBody.sshKey) {
+        sshKey = processedBody.sshKey;
+      }
 
       const data = {
         fluxId: processedBody.fluxId,
@@ -64,6 +68,7 @@ function postNotificationInfo(req, res) {
         telegram_alert: processedBody.telegramAlert,
         telegram_bot_token: processedBody.telegramBotToken,
         telegram_chat_id: processedBody.telegramChatId,
+        sshKey,
       };
 
       const postResult = await notificationService.postNotification(data);
