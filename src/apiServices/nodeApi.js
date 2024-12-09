@@ -48,12 +48,11 @@ function postNode(req, res) {
   req.on('end', async () => {
     try {
       const signature = req.headers['flux-signature'];
-      const messageToVerify = req.headers['flux-message'];
       const processedBody = serviceHelper.ensureObject(body);
       if (!processedBody.adminId) {
         throw new Error('No Flux/SSP ID specified');
       }
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, processedBody.adminId, signature);
+      const nodeVerified = serviceHelper.verifyMessage(processedBody.adminId, processedBody.adminId, signature);
       if (!nodeVerified) {
         throw new Error('Message signature failed for the node administrador id');
       }
