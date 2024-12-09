@@ -10,7 +10,14 @@ const nodeInfoCacheOptions = {
   maxAge: 1000 * 60 * 60 * 24, // 24 hours
 };
 
+const nodeTxCacheOptions = {
+  max: 20000,
+  ttl: 1000 * 60 * 60 * 24, // 24 hours
+  maxAge: 1000 * 60 * 60 * 24, // 24 hours
+};
+
 const nodeInfoCache = new LRUCache(nodeInfoCacheOptions);
+const nodeTxsCache = new LRUCache(nodeTxCacheOptions);
 
 async function getNode(req, res) {
   try {
@@ -62,14 +69,19 @@ function postNode(req, res) {
       if (!processedBody.nodeName) {
         throw new Error('No node name specified');
       }
-      let id = Math.random().toString(36).slice(2);
-      let run = 0;
-      while (nodeInfoCache.has(id)) {
-        run += 1;
-        if (run === 10) {
-          throw new Error('Failed to generate a valid identifier for the node information');
-        }
+      let id = null;
+      if (nodeTxsCache.has(processedBody.transactionOutput + processedBody.transactionIndex)) {
+        id = nodeTxsCache.get(processedBody.transactionOutput + processedBody.transactionIndex);
+      } else {
         id = Math.random().toString(36).slice(2);
+        let run = 0;
+        while (nodeInfoCache.has(id)) {
+          run += 1;
+          if (run === 10) {
+            throw new Error('Failed to generate a valid identifier for the node information');
+          }
+          id = Math.random().toString(36).slice(2);
+        }
       }
       const data = {
         adminId: processedBody.adminId,
@@ -79,6 +91,7 @@ function postNode(req, res) {
         nodeName: processedBody.nodeName,
       };
       nodeInfoCache.set(id, data);
+      nodeTxsCache.set(processedBody.transactionOutput + processedBody.transactionIndex, id);
       const result = serviceHelper.createDataMessage(id);
       res.json(result);
     } catch (error) {
