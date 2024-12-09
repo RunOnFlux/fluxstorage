@@ -42,19 +42,19 @@ module.exports = (app) => {
     publicApi.postPublic(req, res);
   });
   // return node info
-  app.get('/v2/node/:id?', (req, res) => {
+  app.get('/v1/node/:id?', (req, res) => {
     nodeApi.getNode(req, res);
   });
   // currently unprotected
-  app.post('/v2/node', (req, res) => {
+  app.post('/v1/node', (req, res) => {
     nodeApi.postNode(req, res);
   });
   // return notification info
-  app.get('/v2/notification/:id?', (req, res) => {
+  app.get('/v1/notification/:adminId?', (req, res) => {
     notificationApi.getNotificationInfo(req, res);
   });
   // currently unprotected
-  app.post('/v2/notification', (req, res) => {
+  app.post('/v1/notification', (req, res) => {
     notificationApi.postNotificationInfo(req, res);
   });
 };

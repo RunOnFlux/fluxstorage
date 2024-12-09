@@ -1,8 +1,16 @@
 // eslint-disable-next-line no-unused-vars
 const { protection } = require('config');
-const nodeService = require('../services/nodeService');
+const { LRUCache } = require('lru-cache');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
+
+const nodeInfoCacheOptions = {
+  max: 20000,
+  ttl: 1000 * 60 * 60 * 24, // 24 hours
+  maxAge: 1000 * 60 * 60 * 24, // 24 hours
+};
+
+const nodeInfoCache = new LRUCache(nodeInfoCacheOptions);
 
 async function getNode(req, res) {
   try {
@@ -12,17 +20,12 @@ async function getNode(req, res) {
       res.sendStatus(400);
       return;
     }
-    const nodeExist = await nodeService.getNode(id);
-    if (!nodeExist) {
-      throw new Error(`Node ${id} does not exist`);
-    }
-    // no verification ATM
-    // eslint-disable-next-line prefer-const
-    let verified = true;
-    if (verified) {
-      res.json(nodeExist);
+    if (nodeInfoCache.has(id)) {
+      const result = serviceHelper.createDataMessage(nodeInfoCache.get(id));
+      nodeInfoCache.delete(id);
+      res.json(result);
     } else {
-      res.sendStatus(403);
+      throw new Error('Node Identifier not found.');
     }
   } catch (error) {
     log.error(error);
@@ -37,10 +40,15 @@ function postNode(req, res) {
   });
   req.on('end', async () => {
     try {
+      const signature = req.headers['flux-signature'];
+      const messageToVerify = req.headers['flux-message'];
       const processedBody = serviceHelper.ensureObject(body);
-      let id = null;
       if (!processedBody.adminId) {
-        throw new Error('No adminId specified');
+        throw new Error('No Flux/SSP ID specified');
+      }
+      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, processedBody.adminId, signature);
+      if (!nodeVerified) {
+        throw new Error('Message signature failed for the node administrador id');
       }
       if (!processedBody.nodeKey) {
         throw new Error('No nodeKey specified');
@@ -54,21 +62,24 @@ function postNode(req, res) {
       if (!processedBody.nodeName) {
         throw new Error('No node name specified');
       }
-      if (processedBody.id) {
-        id = processedBody.id;
+      let id = Math.random().toString(36).slice(2);
+      let run = 0;
+      while (nodeInfoCache.has(id)) {
+        run += 1;
+        if (run === 10) {
+          throw new Error('Failed to generate a valid identifier for the node information');
+        }
+        id = Math.random().toString(36).slice(2);
       }
-
       const data = {
-        id,
         adminId: processedBody.adminId,
         nodeKey: processedBody.nodeKey,
         transactionOutput: processedBody.transactionOutput,
         transactionIndex: processedBody.transactionIndex,
         nodeName: processedBody.nodeName,
       };
-
-      const postResult = await nodeService.postNode(data);
-      const result = serviceHelper.createDataMessage(postResult);
+      nodeInfoCache.set(id, data);
+      const result = serviceHelper.createDataMessage(id);
       res.json(result);
     } catch (error) {
       log.error(error);
