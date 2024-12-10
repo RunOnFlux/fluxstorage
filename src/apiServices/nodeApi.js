@@ -29,7 +29,6 @@ async function getNode(req, res) {
     }
     if (nodeInfoCache.has(id)) {
       const result = serviceHelper.createDataMessage(nodeInfoCache.get(id));
-      nodeInfoCache.delete(id);
       res.json(result);
     } else {
       throw new Error('Node Identifier not found.');
@@ -52,10 +51,6 @@ function postNode(req, res) {
       if (!processedBody.adminId) {
         throw new Error('No Flux ID specified');
       }
-      const nodeVerified = serviceHelper.verifyMessage(processedBody.adminId, processedBody.adminId, signature);
-      if (!nodeVerified) {
-        throw new Error('Message signature failed for the node administrador id');
-      }
       if (!processedBody.nodeKey) {
         throw new Error('No nodeKey specified');
       }
@@ -67,6 +62,10 @@ function postNode(req, res) {
       }
       if (!processedBody.nodeName) {
         throw new Error('No node name specified');
+      }
+      const nodeVerified = serviceHelper.verifyMessage(JSON.stringify(processedBody), processedBody.adminId, signature);
+      if (!nodeVerified) {
+        throw new Error('Message signature failed for the node administrador id');
       }
       // find in nodeInfoCache id if all the parameters are the same, return existing id key
       // eslint-disable-next-line max-len
@@ -109,7 +108,12 @@ function postNode(req, res) {
   });
 }
 
+function getNodeInfoCache() {
+  return nodeInfoCache;
+}
+
 module.exports = {
   getNode,
   postNode,
+  getNodeInfoCache,
 };

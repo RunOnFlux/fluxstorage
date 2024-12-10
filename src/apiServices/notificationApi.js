@@ -32,16 +32,25 @@ function postNotificationInfo(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      if (!processedBody.fluxId) {
+      if (!processedBody.adminId) {
         throw new Error('No Flux/SSP ID not specified');
       }
       if (!processedBody.ping && !processedBody.webhookUrl && !processedBody.telegramAlert
          && !processedBody.telegramBotToken && !processedBody.telegramChatId && !processedBody.sshKey) {
         throw new Error('No information specified for the notifications');
       }
+      if (!processedBody.words) {
+        throw new Error('Words identifier is mandatory');
+      }
+      // eslint-disable-next-line global-require
+      const nodeApi = require('./nodeApi');
+      const nodeInfoCache = nodeApi.getNodeInfoCache();
+      if (!nodeInfoCache.has(processedBody.words)) {
+        throw new Error('Words identifier not present on node information API');
+      }
 
       const data = {
-        fluxId: processedBody.fluxId,
+        adminId: processedBody.adminId,
         ping: processedBody.ping,
         web_hook_url: processedBody.webhookUrl,
         telegram_alert: processedBody.telegramAlert,
