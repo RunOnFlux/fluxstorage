@@ -8,12 +8,8 @@ async function getNotification(notificationFluxId) {
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
   const query = { fluxId: notificationFluxId };
-
   const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
-  if (notificationRes) {
-    return notificationRes;
-  }
-  throw new Error(`notification for ${notificationFluxId} not found`);
+  return notificationRes;
 }
 
 async function postNotification(data) {
@@ -24,17 +20,7 @@ async function postNotification(data) {
   const timestamp = new Date().getTime();
   // eslint-disable-next-line no-param-reassign
   data.timestamp = timestamp;
-  const notificationExists = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
-  if (notificationExists) {
-    // update
-    // eslint-disable-next-line no-param-reassign
-    if (notificationExists.sshKey !== '' && data.sshKey === '') data.sshKey = notificationExists.sshKey;
-    return await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
-  // eslint-disable-next-line no-else-return
-  } else {
-    // insert to database
-    return await serviceHelper.insertOneToDatabase(database, notificationCollection, data);
-  }
+  await serviceHelper.updateOneInDatabase(database, notificationCollection, query, { $set: data }, { upsert: true });
 }
 
 module.exports = {

@@ -6,59 +6,50 @@ const log = require('../lib/log');
 
 async function getNotificationInfo(req, res) {
   try {
-    let { id } = req.params;
-    id = id || req.query.id;
-    if (!id) {
+    let { fluxId } = req.params;
+    fluxId = fluxId || req.query.fluxId;
+    if (!fluxId) {
       res.sendStatus(400);
       return;
     }
-    const notificationExist = await notificationService.getNotification(id);
+    const signature = req.headers['flux-signature'];
+    const messageToVerify = req.headers['flux-message'];
+    const nodeVerified = serviceHelper.verifyMessage(messageToVerify, fluxId, signature);
+    if (!nodeVerified) {
+      throw new Error('Message signature failed for the Flux/SSP ID');
+    }
+    const notificationExist = await notificationService.getNotification(fluxId);
     if (!notificationExist) {
-      throw new Error(`notification ${id} does not exist`);
+      throw new Error('Notifications does not exist for the Flux/SSP ID');
     }
-    // no verification ATM
-    // eslint-disable-next-line prefer-const
-    let verified = true;
-    if (verified) {
-      res.json(notificationExist);
-    } else {
-      res.sendStatus(403);
-    }
+    res.json(notificationExist);
   } catch (error) {
     log.error(error);
-    res.sendStatus(404);
+    const errMessage = serviceHelper.createErrorMessage(error.message, error.name, error.code);
+    res.json(errMessage);
   }
 }
 
 function postNotificationInfo(req, res) {
   let body = '';
-  let sshKey = '';
   req.on('data', (data) => {
     body += data;
   });
   req.on('end', async () => {
     try {
+      const signature = req.headers['flux-signature'];
+      const messageToVerify = req.headers['flux-message'];
       const processedBody = serviceHelper.ensureObject(body);
       if (!processedBody.fluxId) {
-        throw new Error('fluxid not specified');
+        throw new Error('No Flux/SSP ID not specified');
       }
-      if (!processedBody.ping) {
-        throw new Error('ping not specified');
+      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, processedBody.fluxId, signature);
+      if (!nodeVerified) {
+        throw new Error('Message signature failed for the Flux/SSP ID');
       }
-      if (!processedBody.webhookUrl) {
-        throw new Error('web_hook_url not specified');
-      }
-      if (!processedBody.telegramAlert) {
-        throw new Error('telegram_alert not specified');
-      }
-      if (!processedBody.telegramBotToken) {
-        throw new Error('telegram_bot_token not specified');
-      }
-      if (!processedBody.telegramChatId) {
-        throw new Error('telegram_chat_id not specified');
-      }
-      if (processedBody.sshKey) {
-        sshKey = processedBody.sshKey;
+      if (!processedBody.ping && !processedBody.webhookUrl && !processedBody.telegramAlert
+         && !processedBody.telegramBotToken && !processedBody.telegramChatId && !processedBody.sshKey) {
+        throw new Error('No information specified for the notifications');
       }
 
       const data = {
@@ -68,11 +59,11 @@ function postNotificationInfo(req, res) {
         telegram_alert: processedBody.telegramAlert,
         telegram_bot_token: processedBody.telegramBotToken,
         telegram_chat_id: processedBody.telegramChatId,
-        sshKey,
+        sshKey: processedBody.sshKey,
       };
 
-      const postResult = await notificationService.postNotification(data);
-      const result = serviceHelper.createDataMessage(postResult);
+      await notificationService.postNotification(data);
+      const result = serviceHelper.createSuccessMessage('Notifications settings inserted/updated');
       res.json(result);
     } catch (error) {
       log.error(error);
