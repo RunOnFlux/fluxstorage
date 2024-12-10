@@ -59,6 +59,7 @@ function postNotificationInfo(req, res) {
         telegram_alert: processedBody.telegramAlert,
         telegram_bot_token: processedBody.telegramBotToken,
         telegram_chat_id: processedBody.telegramChatId,
+        email: processedBody.email,
         sshKey: processedBody.sshKey,
       };
 
