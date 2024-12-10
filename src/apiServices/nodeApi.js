@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const UNG = require('unique-names-generator');
 const { LRUCache } = require('lru-cache');
+const notificationService = require('../services/notificationService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
 
@@ -46,9 +47,14 @@ function postNode(req, res) {
   });
   req.on('end', async () => {
     try {
+      const signature = req.headers['flux-signature'];
       const processedBody = serviceHelper.ensureObject(body);
       if (!processedBody.adminId) {
         throw new Error('No Flux ID specified');
+      }
+      const nodeVerified = serviceHelper.verifyMessage(processedBody.adminId, processedBody.adminId, signature);
+      if (!nodeVerified) {
+        throw new Error('Message signature failed for the node administrador id');
       }
       if (!processedBody.nodeKey) {
         throw new Error('No nodeKey specified');
@@ -87,6 +93,11 @@ function postNode(req, res) {
         id,
       };
       nodeInfoCache.set(id, data);
+      const notificationExist = await notificationService.getNotification(id);
+      if (notificationExist) {
+        notificationExist.words = id;
+        await notificationService.postNotification(notificationExist);
+      }
 
       const result = serviceHelper.createDataMessage(id);
       res.json(result);

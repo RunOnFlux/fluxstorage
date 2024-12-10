@@ -12,6 +12,15 @@ async function getNotification(notificationFluxId) {
   return notificationRes;
 }
 
+async function getNotificationFromWords(words) {
+  const db = await serviceHelper.databaseConnection();
+  const database = db.db(config.database.database);
+  const notificationCollection = config.collections.notifications;
+  const query = { words };
+  const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, {});
+  return notificationRes;
+}
+
 async function postNotification(data) {
   const db = await serviceHelper.databaseConnection();
   const database = db.db(config.database.database);
@@ -26,4 +35,5 @@ async function postNotification(data) {
 module.exports = {
   getNotification,
   postNotification,
+  getNotificationFromWords,
 };

@@ -6,21 +6,15 @@ const log = require('../lib/log');
 
 async function getNotificationInfo(req, res) {
   try {
-    let { fluxId } = req.params;
-    fluxId = fluxId || req.query.fluxId;
-    if (!fluxId) {
+    let { id } = req.params;
+    id = id || req.query.id;
+    if (!id) {
       res.sendStatus(400);
       return;
     }
-    const signature = req.headers['flux-signature'];
-    const messageToVerify = req.headers['flux-message'];
-    const nodeVerified = serviceHelper.verifyMessage(messageToVerify, fluxId, signature);
-    if (!nodeVerified) {
-      throw new Error('Message signature failed for the Flux/SSP ID');
-    }
-    const notificationExist = await notificationService.getNotification(fluxId);
+    const notificationExist = await notificationService.getNotificationFromWords(id);
     if (!notificationExist) {
-      throw new Error('Notifications does not exist for the Flux/SSP ID');
+      throw new Error('Notification does not exist for words identifier');
     }
     res.json(notificationExist);
   } catch (error) {
@@ -37,15 +31,9 @@ function postNotificationInfo(req, res) {
   });
   req.on('end', async () => {
     try {
-      const signature = req.headers['flux-signature'];
-      const messageToVerify = req.headers['flux-message'];
       const processedBody = serviceHelper.ensureObject(body);
       if (!processedBody.fluxId) {
         throw new Error('No Flux/SSP ID not specified');
-      }
-      const nodeVerified = serviceHelper.verifyMessage(messageToVerify, processedBody.fluxId, signature);
-      if (!nodeVerified) {
-        throw new Error('Message signature failed for the Flux/SSP ID');
       }
       if (!processedBody.ping && !processedBody.webhookUrl && !processedBody.telegramAlert
          && !processedBody.telegramBotToken && !processedBody.telegramChatId && !processedBody.sshKey) {
@@ -61,6 +49,7 @@ function postNotificationInfo(req, res) {
         telegram_chat_id: processedBody.telegramChatId,
         email: processedBody.email,
         sshKey: processedBody.sshKey,
+        words: processedBody.words,
       };
 
       await notificationService.postNotification(data);
