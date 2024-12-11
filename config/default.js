@@ -19,5 +19,6 @@ module.exports = {
     cmd: 'cmd',
     public: 'public',
     contacts: 'contacts',
+    notifications: 'notifications',
   },
 };

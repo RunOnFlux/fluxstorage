@@ -18,6 +18,7 @@ setTimeout(() => {
   databaseService.doCmdIndexes(); // no waiting
   databaseService.doPublicIndexes(); // no waiting
   databaseService.doContactsIndexes(); // no waiting
+  databaseService.doNotificationsIndexes(); // no waiting
 }, 2000);
 
 setTimeout(() => {

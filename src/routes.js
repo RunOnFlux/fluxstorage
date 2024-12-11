@@ -2,6 +2,8 @@ const envApi = require('./apiServices/envApi');
 const cmdApi = require('./apiServices/cmdApi');
 const publicApi = require('./apiServices/publicApi');
 const contactsApi = require('./apiServices/contactsApi');
+const nodeApi = require('./apiServices/nodeApi');
+const notificationApi = require('./apiServices/notificationApi');
 
 module.exports = (app) => {
   // return env
@@ -38,5 +40,21 @@ module.exports = (app) => {
   // currently unprotected
   app.post('/v1/public', (req, res) => {
     publicApi.postPublic(req, res);
+  });
+  // return node info
+  app.get('/v1/node/:id?', (req, res) => {
+    nodeApi.getNode(req, res);
+  });
+  // currently unprotected
+  app.post('/v1/node', (req, res) => {
+    nodeApi.postNode(req, res);
+  });
+  // return notification info
+  app.get('/v1/notification/:id?', (req, res) => {
+    notificationApi.getNotificationInfo(req, res);
+  });
+  // currently unprotected
+  app.post('/v1/notification', (req, res) => {
+    notificationApi.postNotificationInfo(req, res);
   });
 };

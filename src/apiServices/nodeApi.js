@@ -1,0 +1,119 @@
+// eslint-disable-next-line no-unused-vars
+const UNG = require('unique-names-generator');
+const { LRUCache } = require('lru-cache');
+const notificationService = require('../services/notificationService');
+const serviceHelper = require('../services/serviceHelper');
+const log = require('../lib/log');
+
+const { adjectives, animals, uniqueNamesGenerator } = UNG;
+const UNGconfig = {
+  dictionaries: [adjectives, animals],
+  separator: '-',
+};
+
+const nodeInfoCacheOptions = {
+  max: 20000,
+  ttl: 1000 * 60 * 60 * 24, // 24 hours
+  maxAge: 1000 * 60 * 60 * 24, // 24 hours
+};
+
+const nodeInfoCache = new LRUCache(nodeInfoCacheOptions);
+
+async function getNode(req, res) {
+  try {
+    let { id } = req.params;
+    id = id || req.query.id;
+    if (!id) {
+      res.sendStatus(400);
+      return;
+    }
+    if (nodeInfoCache.has(id)) {
+      const result = serviceHelper.createDataMessage(nodeInfoCache.get(id));
+      res.json(result);
+    } else {
+      throw new Error('Node Identifier not found.');
+    }
+  } catch (error) {
+    log.error(error);
+    res.sendStatus(404);
+  }
+}
+
+function postNode(req, res) {
+  let body = '';
+  req.on('data', (data) => {
+    body += data;
+  });
+  req.on('end', async () => {
+    try {
+      const signature = req.headers['flux-signature'];
+      const processedBody = serviceHelper.ensureObject(body);
+      if (!processedBody.adminId) {
+        throw new Error('No Flux ID specified');
+      }
+      if (!processedBody.nodeKey) {
+        throw new Error('No nodeKey specified');
+      }
+      if (!processedBody.transactionOutput) {
+        throw new Error('No transaction output specified');
+      }
+      if (!processedBody.transactionIndex) {
+        throw new Error('No transaction index specified');
+      }
+      if (!processedBody.nodeName) {
+        throw new Error('No node name specified');
+      }
+      const nodeVerified = serviceHelper.verifyMessage(JSON.stringify(processedBody), processedBody.adminId, signature);
+      if (!nodeVerified) {
+        throw new Error('Message signature failed for the node administrador id');
+      }
+      // find in nodeInfoCache id if all the parameters are the same, return existing id key
+      // eslint-disable-next-line max-len
+      const existingId = nodeInfoCache.find((node) => node.adminId === processedBody.adminId && node.nodeKey === processedBody.nodeKey && node.transactionOutput === processedBody.transactionOutput && node.transactionIndex === processedBody.transactionIndex && node.nodeName === processedBody.nodeName);
+      if (existingId) {
+        // return existing id key
+        const result = serviceHelper.createDataMessage(existingId.id);
+        res.json(result);
+        return;
+      }
+
+      let id = uniqueNamesGenerator(UNGconfig);
+      // generate a unique id for the node if id already exists
+      while (nodeInfoCache.has(id)) {
+        id = uniqueNamesGenerator(UNGconfig);
+      }
+
+      const data = {
+        adminId: processedBody.adminId,
+        nodeKey: processedBody.nodeKey,
+        transactionOutput: processedBody.transactionOutput,
+        transactionIndex: processedBody.transactionIndex,
+        nodeName: processedBody.nodeName,
+        id,
+      };
+      nodeInfoCache.set(id, data);
+      const notificationExist = await notificationService.getNotification(processedBody.adminId);
+      if (notificationExist) {
+        notificationExist.words = id;
+        await notificationService.postNotification(notificationExist);
+      }
+
+      const result = serviceHelper.createDataMessage(id);
+      res.json(result);
+    } catch (error) {
+      log.error(error);
+      const errMessage = serviceHelper.createErrorMessage(error.message, error.name, error.code);
+      res.json(errMessage);
+    }
+  });
+}
+
+function getNodeInfoCache() {
+  return nodeInfoCache;
+}
+
+module.exports = {
+  getNode,
+  postNode,
+  getNodeInfoCache,
+};

@@ -59,9 +59,25 @@ async function doContactsIndexes() {
   }
 }
 
+async function doNotificationsIndexes() {
+  try {
+    log.info('notification collection indexes');
+    const db = await serviceHelper.databaseConnection();
+    const database = db.db(config.database.database);
+
+    await database.collection(config.collections.notifications).createIndex({ adminId: 1 }); // for querying paritcular notification
+    await database.collection(config.collections.notifications).createIndex({ words: 1 }); // for querying paritcular notification
+
+    log.info('notification collection indexes created.');
+  } catch (error) {
+    log.error(error); // failiure is ok, continue
+  }
+}
+
 module.exports = {
   doEnvIndexes,
   doCmdIndexes,
   doPublicIndexes,
   doContactsIndexes,
+  doNotificationsIndexes,
 };
