@@ -50,7 +50,7 @@ module.exports = (app) => {
     nodeApi.postNode(req, res);
   });
   // return notification info
-  app.get('/v1/notification/:adminId?', (req, res) => {
+  app.get('/v1/notification/:id?', (req, res) => {
     notificationApi.getNotificationInfo(req, res);
   });
   // currently unprotected
