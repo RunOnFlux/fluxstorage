@@ -5,17 +5,13 @@ const compression = require('compression');
 const rateLimiter = require('express-rate-limit');
 const nodeEnv = process.env.NODE_ENV;
 
-const allowlist = ['95.217.221.247'];
-
 const app = express();
 
 const limiter = rateLimiter.rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  limit: 200, // Limit each IP to 200 requests per windowMs
+  limit: 100, // Limit each IP to 200 requests per windowMs
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  skip: (req, res) => allowlist.includes(req.ip),
-  validate: { xForwardedForHeader: false },
 });
 
 if (nodeEnv !== 'test') {

@@ -57,4 +57,5 @@ module.exports = (app) => {
   app.post('/v1/notification', (req, res) => {
     notificationApi.postNotificationInfo(req, res);
   });
+  app.get('/test/ip', (request, response) => response.send(request.ip));
 };
