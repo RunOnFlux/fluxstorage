@@ -6,6 +6,7 @@ const rateLimiter = require('express-rate-limit');
 const nodeEnv = process.env.NODE_ENV;
 
 const app = express();
+app.set('trust proxy', 1);
 
 const limiter = rateLimiter.rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
