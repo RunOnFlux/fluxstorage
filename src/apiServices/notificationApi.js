@@ -58,6 +58,8 @@ function postNotificationInfo(req, res) {
         telegram_chat_id: processedBody.telegramChatId,
         email: processedBody.email,
         sshKey: processedBody.sshKey,
+        blockedPorts: processedBody.blockedPorts,
+        blockedRepos: processedBody.blockedRepos,
         words: processedBody.words,
       };
 
