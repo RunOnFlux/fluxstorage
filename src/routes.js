@@ -4,6 +4,7 @@ const publicApi = require('./apiServices/publicApi');
 const contactsApi = require('./apiServices/contactsApi');
 const nodeApi = require('./apiServices/nodeApi');
 const notificationApi = require('./apiServices/notificationApi');
+const extraNodeInformationApi = require('./apiServices/extraNodeInformationApi');
 
 module.exports = (app) => {
   // return env
@@ -56,6 +57,14 @@ module.exports = (app) => {
   // currently unprotected
   app.post('/v1/notification', (req, res) => {
     notificationApi.postNotificationInfo(req, res);
+  });
+  // return extra node info
+  app.get('/v1/extranodeinformation/:id?', (req, res) => {
+    extraNodeInformationApi.getExtraNodeInfo(req, res);
+  });
+  // currently unprotected
+  app.post('/v1/extranodeinformation', (req, res) => {
+    extraNodeInformationApi.postExtraNodeInfo(req, res);
   });
   app.get('/test/ip', (request, response) => response.send(request.ip));
 };

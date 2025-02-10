@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const UNG = require('unique-names-generator');
 const { LRUCache } = require('lru-cache');
-const notificationService = require('../services/notificationService');
+const extraNodeInformationService = require('../services/extraNodeInformationService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
 
@@ -92,10 +92,10 @@ function postNode(req, res) {
         id,
       };
       nodeInfoCache.set(id, data);
-      const notificationExist = await notificationService.getNotification(processedBody.adminId);
+      const notificationExist = await extraNodeInformationService.getNotification(processedBody.adminId);
       if (notificationExist) {
         notificationExist.words = id;
-        await notificationService.postNotification(notificationExist);
+        await extraNodeInformationService.postNotification(notificationExist);
       }
 
       const result = serviceHelper.createDataMessage(id);
