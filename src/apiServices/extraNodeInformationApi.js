@@ -48,7 +48,7 @@ function postExtraNodeInfo(req, res) {
       const data = {
         adminId: processedBody.adminId,
         discordUserId: processedBody.discordUserId,
-        discordWebHookURL: processedBody.discordWebHookURL,
+        discordWebHookUrl: processedBody.discordWebHookUrl,
         telegramAlert: processedBody.telegramAlert,
         telegramBotToken: processedBody.telegramBotToken,
         telegramChatId: processedBody.telegramChatId,
@@ -56,7 +56,7 @@ function postExtraNodeInfo(req, res) {
         sshKey: processedBody.sshKey,
         blockedPorts: processedBody.blockedPorts,
         blockedRepos: processedBody.blockedRepos,
-        genericWebHookURL: processedBody.genericWebHookURL,
+        genericWebHookUrl: processedBody.genericWebHookUrl,
         words: processedBody.words,
       };
 
