@@ -60,7 +60,7 @@ function postExtraNodeInfo(req, res) {
         words: processedBody.words,
       };
 
-      await extraNodeInformation.postNotification(data);
+      await extraNodeInformation.postData(data);
       const result = serviceHelper.createSuccessMessage('Extra Node Info settings inserted/updated');
       res.json(result);
     } catch (error) {
