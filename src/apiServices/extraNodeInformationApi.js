@@ -47,8 +47,8 @@ function postExtraNodeInfo(req, res) {
 
       const data = {
         adminId: processedBody.adminId,
-        discordUserId: processedBody.ping,
-        discordWebHookURL: processedBody.webhookUrl,
+        discordUserId: processedBody.discordUserId,
+        discordWebHookURL: processedBody.discordWebHookURL,
         telegramAlert: processedBody.telegramAlert,
         telegramBotToken: processedBody.telegramBotToken,
         telegramChatId: processedBody.telegramChatId,
