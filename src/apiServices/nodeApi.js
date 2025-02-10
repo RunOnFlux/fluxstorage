@@ -92,7 +92,7 @@ function postNode(req, res) {
         id,
       };
       nodeInfoCache.set(id, data);
-      const notificationExist = await extraNodeInformationService.getNotification(processedBody.adminId);
+      const notificationExist = await extraNodeInformationService.getData(processedBody.adminId);
       if (notificationExist) {
         notificationExist.words = id;
         await extraNodeInformationService.postNotification(notificationExist);
