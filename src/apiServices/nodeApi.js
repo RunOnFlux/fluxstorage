@@ -95,7 +95,7 @@ function postNode(req, res) {
       const notificationExist = await extraNodeInformationService.getData(processedBody.adminId);
       if (notificationExist) {
         notificationExist.words = id;
-        await extraNodeInformationService.postNotification(notificationExist);
+        await extraNodeInformationService.postData(notificationExist);
       }
 
       const result = serviceHelper.createDataMessage(id);
