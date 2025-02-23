@@ -12,11 +12,12 @@ async function getExtraNodeInfo(req, res) {
       res.sendStatus(400);
       return;
     }
-    const notificationExist = await extraNodeInformation.getDataFromWords(id);
-    if (!notificationExist) {
+    const notificationData = await extraNodeInformation.getDataFromWords(id);
+    if (!notificationData) {
       throw new Error('Extra Node Info does not exist for words identifier');
     }
-    res.json(notificationExist);
+    const result = serviceHelper.createDataMessage(notificationData);
+    res.json(result);
   } catch (error) {
     log.error(error);
     const errMessage = serviceHelper.createErrorMessage(error.message, error.name, error.code);
@@ -32,12 +33,29 @@ function postExtraNodeInfo(req, res) {
   req.on('end', async () => {
     try {
       const processedBody = serviceHelper.ensureObject(body);
-      if (!processedBody.adminId) {
+
+      const {
+        adminId = null,
+        words = null,
+        discordUserId = null,
+        discordWebhookUrl = null,
+        telegramAlert = null,
+        telegramBotToken = null,
+        telegramChatId = null,
+        emailAddress = null,
+        genericWebhookUrl = null,
+        sshPubKey = null,
+        blockedPorts = null,
+        blockedRepositories = null,
+      } = processedBody;
+
+      if (!adminId) {
         throw new Error('No Flux/SSP ID not specified');
       }
-      if (!processedBody.words) {
+      if (!words) {
         throw new Error('Words identifier is mandatory');
       }
+
       // eslint-disable-next-line global-require
       const nodeApi = require('./nodeApi');
       const nodeInfoCache = nodeApi.getNodeInfoCache();
@@ -45,20 +63,21 @@ function postExtraNodeInfo(req, res) {
         throw new Error('Words identifier not present on node information API');
       }
 
+      // only store the data that has been POSTed
       const data = {
-        adminId: processedBody.adminId,
-        discordUserId: processedBody.discordUserId,
-        discordWebhookUrl: processedBody.discordWebhookUrl,
-        telegramAlert: processedBody.telegramAlert,
-        telegramBotToken: processedBody.telegramBotToken,
-        telegramChatId: processedBody.telegramChatId,
-        email: processedBody.email,
-        sshKey: processedBody.sshKey,
-        blockedPorts: processedBody.blockedPorts,
-        blockedRepos: processedBody.blockedRepos,
-        genericWebhookUrl: processedBody.genericWebhookUrl,
-        words: processedBody.words,
-      };
+        adminId,
+        words,
+        ...(discordUserId && { discordUserId }),
+        ...(discordWebhookUrl && { discordWebhookUrl }),
+        ...(telegramAlert && { telegramAlert }),
+        ...(telegramBotToken && { telegramBotToken }),
+        ...(telegramChatId && { telegramChatId }),
+        ...(emailAddress && { emailAddress }),
+        ...(sshPubKey && { sshPubKey }),
+        ...(blockedPorts && { blockedPorts }),
+        ...(blockedRepositories && { blockedRepositories }),
+        ...(genericWebhookUrl && { genericWebhookUrl }),
+      }
 
       await extraNodeInformation.postData(data);
       const result = serviceHelper.createSuccessMessage('Extra Node Info settings inserted/updated');
