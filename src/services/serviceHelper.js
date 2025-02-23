@@ -168,6 +168,12 @@ async function insertOneToDatabase(database, collection, value) {
   return result;
 }
 
+async function replaceOneInDatabase(database, collection, query, replace, options) {
+  const passedOptions = options || {};
+  const result = await database.collection(collection).replaceOne(query, replace, passedOptions);
+  return result;
+}
+
 async function updateOneInDatabase(database, collection, query, update, options) {
   const passedOptions = options || {};
   const result = await database.collection(collection).updateOne(query, update, passedOptions);
@@ -333,6 +339,7 @@ module.exports = {
   insertOneToDatabase,
   updateInDatabase,
   updateOneInDatabase,
+  replaceOneInDatabase,
   findOneAndDeleteInDatabase,
   removeDocumentsFromCollection,
   dropCollection,
