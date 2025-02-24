@@ -8,7 +8,12 @@ async function getData(adminFluxId) {
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
   const query = { adminId: adminFluxId };
-  const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, { _id: 0 });
+  const notificationRes = await serviceHelper.findOneInDatabase(
+    database,
+    notificationCollection,
+    query,
+    { projection: { _id: 0 } }
+  );
   return notificationRes;
 }
 
@@ -17,7 +22,12 @@ async function getDataFromWords(words) {
   const database = db.db(config.database.database);
   const notificationCollection = config.collections.notifications;
   const query = { words };
-  const notificationRes = await serviceHelper.findOneInDatabase(database, notificationCollection, query, { _id: 0 });
+  const notificationRes = await serviceHelper.findOneInDatabase(
+    database,
+    notificationCollection,
+    query,
+    { projection: { _id: 0 } }
+  );
   return notificationRes;
 }
 
