@@ -71,6 +71,11 @@ function postNode(req, res) {
       // eslint-disable-next-line max-len
       const existingId = nodeInfoCache.find((node) => node.adminId === processedBody.adminId && node.nodeKey === processedBody.nodeKey && node.transactionOutput === processedBody.transactionOutput && node.transactionIndex === processedBody.transactionIndex && node.nodeName === processedBody.nodeName);
       if (existingId) {
+        const notificationExist = await extraNodeInformationService.getData(processedBody.adminId);
+        if (notificationExist) {
+          notificationExist.words = existingId.id;
+          await extraNodeInformationService.postData(notificationExist);
+        }
         // return existing id key
         const result = serviceHelper.createDataMessage(existingId.id);
         res.json(result);
