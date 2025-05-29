@@ -27,6 +27,7 @@ async function getEnv(req, res) {
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
     const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
+    console.log('ip:', ip);
     const envExist = await envService.getEnv(id);
     if (!envExist) {
       throw new Error(`ENV of ${id} does not exist`);
