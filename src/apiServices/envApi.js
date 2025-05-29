@@ -26,7 +26,7 @@ async function getEnv(req, res) {
     // from ip get nodes that are fine, array of pub keys, do verification
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
+    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
     const envExist = await envService.getEnv(id);
     if (!envExist) {
       throw new Error(`ENV of ${id} does not exist`);
@@ -170,7 +170,8 @@ async function getEnvV2(req, res) {
     // from ip get nodes that are fine, array of pub keys, do verification
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
+    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
+    console.log('ip:', ip);
     const appName = req.headers['flux-app'];
     if (!appName) {
       throw new Error('Flux App header not supplied');

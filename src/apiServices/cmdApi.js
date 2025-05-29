@@ -16,7 +16,8 @@ async function getCmd(req, res) {
     // from ip get nodes that are fine, array of pub keys, do verification
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['x-forwarded-for'];
+    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
+    console.log('ip:', ip);
     const cmdExist = await cmdService.getCmd(id);
     if (!cmdExist) {
       throw new Error(`CMD of ${id} does not exist`);
