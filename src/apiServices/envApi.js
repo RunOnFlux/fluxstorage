@@ -26,7 +26,7 @@ async function getEnv(req, res) {
     // from ip get nodes that are fine, array of pub keys, do verification
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
+    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.headers['x-forwarded-for'].split(',')[0];
     console.log('ip:', ip);
     const envExist = await envService.getEnv(id);
     if (!envExist) {
@@ -171,7 +171,7 @@ async function getEnvV2(req, res) {
     // from ip get nodes that are fine, array of pub keys, do verification
     const signature = req.headers['flux-signature'];
     const messageToVerify = req.headers['flux-message'];
-    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'];
+    const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.headers['x-forwarded-for'].split(',')[0];
     console.log('ip:', ip);
     const appName = req.headers['flux-app'];
     if (!appName) {
