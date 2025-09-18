@@ -82,7 +82,7 @@ function postNode(req, res) {
         return;
       }
 
-      let id = uniqueNamesGenerator(UNGconfig);     
+      let id = uniqueNamesGenerator(UNGconfig);
       // generate a unique id for the node if id already exists
       while (nodeInfoCache.has(id) || await extraNodeInformationService.getDataFromWords(id)) {
         id = uniqueNamesGenerator(UNGconfig);
