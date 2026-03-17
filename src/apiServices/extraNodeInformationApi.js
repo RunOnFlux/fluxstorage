@@ -4,6 +4,8 @@ const extraNodeInformation = require('../services/extraNodeInformationService');
 const serviceHelper = require('../services/serviceHelper');
 const log = require('../lib/log');
 
+const deprecatedFields = ['blockedPorts', 'blockedRepositories'];
+
 async function getExtraNodeInfo(req, res) {
   try {
     let { id } = req.params;
@@ -16,6 +18,16 @@ async function getExtraNodeInfo(req, res) {
     if (!notificationData) {
       throw new Error('Extra Node Info does not exist for words identifier');
     }
+
+    // Strip deprecated fields and lazily update DB if any were present
+    const hasDeprecated = deprecatedFields.some((field) => field in notificationData);
+    if (hasDeprecated) {
+      deprecatedFields.forEach((field) => delete notificationData[field]);
+      extraNodeInformation.postData({ ...notificationData }).catch((err) => {
+        log.error(`Failed to clean deprecated fields for ${id}: ${err.message}`);
+      });
+    }
+
     const result = serviceHelper.createDataMessage(notificationData);
     res.json(result);
   } catch (error) {
@@ -45,8 +57,8 @@ function postExtraNodeInfo(req, res) {
         emailAddress = null,
         genericWebhookUrl = null,
         sshPubKey = null,
-        blockedPorts = null,
-        blockedRepositories = null,
+        delegatePrivateKeyEncrypted = null,
+        collateralPubkey = null,
       } = processedBody;
 
       if (!adminId) {
@@ -74,8 +86,8 @@ function postExtraNodeInfo(req, res) {
         ...(telegramChatId && { telegramChatId }),
         ...(emailAddress && { emailAddress }),
         ...(sshPubKey && { sshPubKey }),
-        ...(blockedPorts && { blockedPorts }),
-        ...(blockedRepositories && { blockedRepositories }),
+        ...(delegatePrivateKeyEncrypted && { delegatePrivateKeyEncrypted }),
+        ...(collateralPubkey && { collateralPubkey }),
         ...(genericWebhookUrl && { genericWebhookUrl }),
       }
 
