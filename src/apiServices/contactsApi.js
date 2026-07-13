@@ -18,8 +18,26 @@ async function getContacts(req, res) {
       throw new Error(`CONTACTS of ${id} does not exist`);
     }
     let verified = !protection;
-    if (apiKey === contactsApiKey) {
+    if (!verified && apiKey === contactsApiKey) {
       verified = true;
+    }
+    // Additionally allow reads authenticated by a Flux node signature (same scheme as env/cmd),
+    // so a FluxOS node can resolve F_S_CONTACTS on behalf of the app owner. The shared api-key
+    // path above is kept for existing callers (e.g. fluxmonitor).
+    if (!verified) {
+      const signature = req.headers['flux-signature'];
+      const messageToVerify = req.headers['flux-message'];
+      const xForwardedFor = req.headers['x-forwarded-for'];
+      const ip = req.headers['cf-connecting-ip'] || req.headers['x-real-ip']
+        || (xForwardedFor ? xForwardedFor.split(',')[0] : undefined);
+      if (signature && messageToVerify && ip) {
+        const fluxNodes = await serviceHelper.axiosGet('https://api.runonflux.io/daemon/viewdeterministiczelnodelist');
+        fluxNodes.data.data.forEach((node) => {
+          if (node.ip.split(':')[0] === ip && serviceHelper.verifyMessage(messageToVerify, node.pubkey, signature)) {
+            verified = true;
+          }
+        });
+      }
     }
     if (verified) {
       res.json(contactsExist);
